@@ -64,6 +64,9 @@ import com.tomkeuper.bedwars.handlers.items.SpectatorItem;
 import com.tomkeuper.bedwars.handlers.main.CommandItemHandler;
 import com.tomkeuper.bedwars.handlers.main.LeaveItemHandler;
 import com.tomkeuper.bedwars.handlers.main.StatsItemHandler;
+import com.tomkeuper.bedwars.hotbar.HotbarListener;
+import com.tomkeuper.bedwars.hotbar.HotbarMenu;
+import com.tomkeuper.bedwars.hotbar.HotbarPlayerManager;
 import com.tomkeuper.bedwars.language.*;
 import com.tomkeuper.bedwars.levels.internal.InternalLevel;
 import com.tomkeuper.bedwars.levels.internal.LevelListeners;
@@ -138,6 +141,7 @@ public class BedWars extends JavaPlugin {
     public static PlayerQuickBuyCache playerQuickBuyCache;
     public static ShopCache shopCache;
     public static StatsManager statsManager;
+    public static HotbarPlayerManager hotbarPlayerManager;
     public static BedWars plugin;
     private BukkitAudiences adventure;
     public static VersionSupport nms;
@@ -347,6 +351,11 @@ public class BedWars extends JavaPlugin {
         // Register events
         registerEvents(new EnderPearlLanded(), new QuitAndTeleportListener(), new BreakPlace(), new DamageDeathMove(), new Inventory(), new Interact(), new RefreshGUI(), new HungerWeatherSpawn(), new CmdProcess(),
                 new FireballListener(), new EggBridge(), new SpectatorListeners(), new BaseListener(), new TargetListener(), new LangListener(), new Warnings(this), new ChatAFK(), new GameEndListener());
+
+        /* Hotbar layout module */
+        hotbarPlayerManager = new HotbarPlayerManager();
+        HotbarMenu.initDefaults();
+        registerEvents(new HotbarListener(), new HotbarMenu());
 
         if (config.getBoolean(ConfigPath.GENERAL_CONFIGURATION_HEAL_POOL_ENABLE)) {
             registerEvents(new HealPoolListener());
@@ -661,6 +670,9 @@ public class BedWars extends JavaPlugin {
         shuttingDown = true;
         addonManager.unloadAddons();
         if (!serverSoftwareSupport) return;
+        if (hotbarPlayerManager != null) {
+            hotbarPlayerManager.saveAll(false);
+        }
         if (getServerType() == ServerType.BUNGEE) {
             redisConnection.close();
         }

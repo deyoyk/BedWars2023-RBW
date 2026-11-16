@@ -26,6 +26,7 @@ import com.tomkeuper.bedwars.api.arena.shop.IBuyItem;
 import com.tomkeuper.bedwars.api.arena.team.TeamEnchant;
 import com.tomkeuper.bedwars.api.configuration.ConfigPath;
 import com.tomkeuper.bedwars.configuration.Sounds;
+import com.tomkeuper.bedwars.hotbar.HotbarPlacement;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -287,8 +288,12 @@ public class BuyItem implements IBuyItem {
         }
         //
         if (i != null && i.getType() != Material.AIR) {
+            org.bukkit.inventory.ItemStack[] before = HotbarPlacement.snapshot(player);
             player.getInventory().addItem(i);
             player.updateInventory();
+            if (!autoEquip) {
+                HotbarPlacement.place(player, i, upgradeIdentifier, before);
+            }
         } else {
             BedWars.debug("Attempted to give AIR/null item to " + player.getName() + " for upgrade: " + getUpgradeIdentifier());
         }
