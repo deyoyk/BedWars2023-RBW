@@ -33,6 +33,7 @@ import com.tomkeuper.bedwars.arena.Arena;
 import com.tomkeuper.bedwars.arena.LastHit;
 import com.tomkeuper.bedwars.arena.team.BedWarsTeam;
 import com.tomkeuper.bedwars.listeners.chat.ChatFormatting;
+import com.tomkeuper.bedwars.utils.FireballUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -105,10 +106,17 @@ public class FireballListener implements Listener {
         }
 
         arena.getFireballCooldowns().put(player.getUniqueId(), System.currentTimeMillis());
-        Fireball fireball = player.launchProjectile(Fireball.class);
-        Vector direction = player.getEyeLocation().getDirection();
+
+        Location eye = player.getEyeLocation();
+        Vector direction = eye.getDirection();
+        Vector eyePos = eye.toVector();
+        Vector spawn = FireballUtil.computeSpawnPoint(eyePos, direction, (x, y, z) -> player.getWorld().getBlockAt(x, y, z).getType().isSolid());
+        Vector aimPoint = FireballUtil.rayTraceBlock((x, y, z) -> player.getWorld().getBlockAt(x, y, z).getType().isSolid(), eyePos, direction, FireballUtil.MAX_AIM_DISTANCE);
+
+        Fireball fireball = (Fireball) player.getWorld().spawnEntity(spawn.toLocation(player.getWorld()), org.bukkit.entity.EntityType.FIREBALL);
+        fireball.setShooter(player);
         fireball = BedWars.nms.setFireballDirection(fireball, direction);
-        fireball.setVelocity(fireball.getDirection().multiply(fireballSpeedMultiplier));
+        fireball.setVelocity(FireballUtil.computeLaunchVelocity(spawn, aimPoint, direction, fireballSpeedMultiplier));
         fireball.setYield((float) fireballExplosionSize);
         fireball.setMetadata("bw2023", new FixedMetadataValue(BedWars.plugin, "ceva"));
         BedWars.nms.minusAmount(player, handItem, 1);
@@ -229,8 +237,7 @@ public class FireballListener implements Listener {
     }
 
     private void damagePlayer(Player player, double damageTeammates) {
-        if (damageTeammates > 0) {
-            EntityDamageEvent damageEvent = new EntityDamageEvent(
+        if (damageTeammates > 0) {            EntityDamageEvent damageEvent = new EntityDamageEvent(
                     player,
                     EntityDamageEvent.DamageCause.ENTITY_EXPLOSION,
                     new EnumMap<>(ImmutableMap.of(EntityDamageEvent.DamageModifier.BASE, damageTeammates)),
