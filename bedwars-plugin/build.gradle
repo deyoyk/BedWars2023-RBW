@@ -102,23 +102,7 @@ tasks.named('processResources') {
 def versions = [
         ':versionsupport_common',
         ':versionsupport_1_8_r3',
-        ':versionsupport_1_12_r1',
-        ':versionsupport_v1_16_r3',
-        ':versionsupport_v1_17_r1',
-        ':versionsupport_v1_18_r2',
-        ':versionsupport_v1_19_r3',
-        ':versionsupport_v1_20_r4',
-        ':versionsupport_v1_20_6',
-        ':versionsupport_v1_21_r1',
-        ':versionsupport_v1_21_r2',
-        ':versionsupport_v1_21_r3',
-        ':versionsupport_v1_21_r5',
-        ':versionsupport_v1_21_r7',
-        ':versionsupport_v26_1',
-        ':resetadapter_slime',
-        ':resetadapter_slimepaper',
-        ':resetadapter_advancedslimepaper',
-        ':resetadapter_aswm'
+        ':resetadapter_slime'
 ] as Set
 
 slimJar {

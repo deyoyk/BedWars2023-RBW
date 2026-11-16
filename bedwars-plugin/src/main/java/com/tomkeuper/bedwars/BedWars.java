@@ -210,44 +210,12 @@ public class BedWars extends JavaPlugin {
         plugin = this;
 
         /* Load version support */
-        //noinspection rawtypes
-        switch (minecraftVersion) {
-            case "1.20.4":
-                nmsVersion = "v1_20_R3";
-                break;
-            case "1.20.5":
-                nmsVersion = "v1_20_R4";
-                break;
-            case "1.20.6":
-                nmsVersion = "v1_20_6";
-                break;
-            case "1.21":
-            case "1.21.1":
-                nmsVersion = "v1_21_R1";
-                break;
-            case "1.21.2":
-            case "1.21.3":
-                nmsVersion = "v1_21_R2";
-                break;
-            case "1.21.4":
-                nmsVersion = "v1_21_R3";
-                break;
-            case "1.21.6":
-            case "1.21.7":
-            case "1.21.8":
-                nmsVersion = "v1_21_R5";
-                break;
-            case "1.21.11":
-                nmsVersion = "v1_21_R7";
-                break;
-            case "26.1":
-            case "26.1.1":
-            case "26.1.2":
-                nmsVersion = "v26_1";
-                break;
-            default:
-                break;
+        if (!minecraftVersion.startsWith("1.8")) {
+            serverSoftwareSupport = false;
+            this.getLogger().severe("I can't run on your version: " + minecraftVersion + ". Only 1.8.x is supported.");
+            return;
         }
+        nmsVersion = "v1_8_R3";
         Class supp;
 
         try {
