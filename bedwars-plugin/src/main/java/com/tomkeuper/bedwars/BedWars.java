@@ -20,8 +20,6 @@
 
 package com.tomkeuper.bedwars;
 
-import com.andrei1058.vipfeatures.api.IVipFeatures;
-import com.andrei1058.vipfeatures.api.MiniGameAlreadyRegistered;
 import com.tomkeuper.bedwars.addon.AddonManager;
 import com.tomkeuper.bedwars.api.addon.Addon;
 import com.tomkeuper.bedwars.api.addon.IAddonManager;
@@ -33,7 +31,6 @@ import com.tomkeuper.bedwars.api.database.IDatabase;
 import com.tomkeuper.bedwars.api.economy.IEconomy;
 import com.tomkeuper.bedwars.api.items.handlers.IPermanentItem;
 import com.tomkeuper.bedwars.api.items.handlers.IPermanentItemHandler;
-import com.tomkeuper.bedwars.arena.feature.ResourceChestFeature;
 import com.tomkeuper.bedwars.arena.tasks.HologramTask;
 import com.tomkeuper.bedwars.handlers.items.LobbyItem;
 import com.tomkeuper.bedwars.api.hologram.IHologramManager;
@@ -47,9 +44,6 @@ import com.tomkeuper.bedwars.arena.Arena;
 import com.tomkeuper.bedwars.arena.ArenaManager;
 import com.tomkeuper.bedwars.arena.VoidChunkGenerator;
 import com.tomkeuper.bedwars.arena.despawnables.TargetListener;
-import com.tomkeuper.bedwars.arena.feature.AntiDropFeature;
-import com.tomkeuper.bedwars.arena.feature.GenSplitFeature;
-import com.tomkeuper.bedwars.arena.feature.SpoilPlayerTNTFeature;
 import com.tomkeuper.bedwars.arena.spectator.SpectatorListeners;
 import com.tomkeuper.bedwars.arena.tasks.OneTick;
 import com.tomkeuper.bedwars.arena.tasks.Refresh;
@@ -64,7 +58,6 @@ import com.tomkeuper.bedwars.configuration.*;
 import com.tomkeuper.bedwars.database.H2;
 import com.tomkeuper.bedwars.database.MySQL;
 import com.tomkeuper.bedwars.database.SQLite;
-import com.tomkeuper.bedwars.halloween.HalloweenSpecial;
 import com.tomkeuper.bedwars.hologram.HologramManager;
 import com.tomkeuper.bedwars.handlers.items.PreGameItem;
 import com.tomkeuper.bedwars.handlers.items.SpectatorItem;
@@ -90,8 +83,6 @@ import com.tomkeuper.bedwars.shop.ShopManager;
 import com.tomkeuper.bedwars.shop.quickbuy.PlayerQuickBuyCache;
 import com.tomkeuper.bedwars.sidebar.BoardManager;
 import com.tomkeuper.bedwars.stats.StatsManager;
-import com.tomkeuper.bedwars.support.citizens.CitizensListener;
-import com.tomkeuper.bedwars.support.citizens.JoinNPC;
 import com.tomkeuper.bedwars.support.papi.PAPISupport;
 import com.tomkeuper.bedwars.support.papi.SupportPAPI;
 import com.tomkeuper.bedwars.support.party.*;
@@ -99,8 +90,6 @@ import com.tomkeuper.bedwars.support.vault.NoChat;
 import com.tomkeuper.bedwars.support.vault.NoEconomy;
 import com.tomkeuper.bedwars.support.vault.WithChat;
 import com.tomkeuper.bedwars.support.vault.WithEconomy;
-import com.tomkeuper.bedwars.support.vipfeatures.VipFeatures;
-import com.tomkeuper.bedwars.support.vipfeatures.VipListeners;
 import com.tomkeuper.bedwars.upgrades.UpgradesManager;
 import com.tomkeuper.bedwars.utils.ItemBuilder;
 import com.tomkeuper.bedwars.utils.SlimLogger;
@@ -108,8 +97,6 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import io.github.slimjar.app.builder.ApplicationBuilder;
 import me.neznamy.tab.api.TabAPI;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import org.bstats.bukkit.Metrics;
-import org.bstats.charts.SimplePie;
 import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
@@ -436,18 +423,6 @@ public class BedWars extends JavaPlugin {
         /* Party support */
         Bukkit.getScheduler().runTaskLater(this, () -> {
             if (config.getYml().getBoolean(ConfigPath.GENERAL_CONFIGURATION_ALLOW_PARTIES)) {
-
-                if (getServer().getPluginManager().isPluginEnabled("Parties")) {
-                    getLogger().info("Hook into Parties (by AlessioDP) support!");
-                    partyManager = new PartiesAdapter();
-                } else if (Bukkit.getServer().getPluginManager().isPluginEnabled("PartyAndFriends")) {
-                    getLogger().info("Hook into Party and Friends for Spigot (by Simonsator) support!");
-                    partyManager = new PAF();
-                } else if (Bukkit.getServer().getPluginManager().isPluginEnabled("Spigot-Party-API-PAF")) {
-                    getLogger().info("Hook into Spigot Party API for Party and Friends Extended (by Simonsator) support!");
-                    partyManager = new PAFBungeecordRedisApi();
-                }
-
                 if (partyManager instanceof NoParty) {
                     partyManager = new Internal();
                     getLogger().info("Loading internal Party system. /party");
@@ -496,23 +471,6 @@ public class BedWars extends JavaPlugin {
             remoteDatabase = new H2();
             remoteDatabase.init();
         }
-
-        /* Citizens support */
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            if (this.getServer().getPluginManager().getPlugin("Citizens") != null) {
-                JoinNPC.setCitizensSupport(true);
-                getLogger().info("Hook into Citizens support. /bw npc");
-                registerEvents(new CitizensListener());
-            }
-
-            //spawn NPCs
-            try {
-                JoinNPC.spawnNPCs();
-            } catch (Exception e) {
-                this.getLogger().severe("Could not spawn CmdJoin NPCs. Make sure you have right version of Citizens for your server!");
-                JoinNPC.setCitizensSupport(false);
-            }
-        }, 40L);
 
         /* Save messages for stats gui items if custom items added, for each language */
         Language.setupCustomStatsMessages();
@@ -611,30 +569,6 @@ public class BedWars extends JavaPlugin {
         /* Load Money Configuration */
         MoneyConfig.init();
 
-        // bStats metrics
-        Metrics metrics = new Metrics(this, 18317);
-        metrics.addCustomChart(new SimplePie("server_type", () -> getServerType().toString()));
-        metrics.addCustomChart(new SimplePie("default_language", () -> Language.getDefaultLanguage().getIso()));
-        metrics.addCustomChart(new SimplePie("auto_scale", () -> String.valueOf(autoscale)));
-        metrics.addCustomChart(new SimplePie("party_adapter", () -> partyManager.getClass().getSimpleName()));
-        metrics.addCustomChart(new SimplePie("chat_adapter", () -> chat.getClass().getSimpleName()));
-        metrics.addCustomChart(new SimplePie("level_adapter", () -> getLevelSupport().getClass().getSimpleName()));
-        metrics.addCustomChart(new SimplePie("db_adapter", () -> getRemoteDatabase().getClass().getSimpleName()));
-        metrics.addCustomChart(new SimplePie("map_adapter", () -> String.valueOf(getAPI().getRestoreAdapter().getOwner().getName())));
-
-        if (Bukkit.getPluginManager().getPlugin("VipFeatures") != null) {
-            try {
-                IVipFeatures vf = Bukkit.getServicesManager().getRegistration(IVipFeatures.class).getProvider();
-                vf.registerMiniGame(new VipFeatures(this));
-                registerEvents(new VipListeners(vf));
-                getLogger().log(java.util.logging.Level.INFO, "Hook into VipFeatures support.");
-            } catch (Exception e) {
-                getLogger().warning("Could not load support for VipFeatures.");
-            } catch (MiniGameAlreadyRegistered miniGameAlreadyRegistered) {
-                miniGameAlreadyRegistered.printStackTrace();
-            }
-        }
-
         // Initialize team upgrades
         upgradesManager = new UpgradesManager();
         upgradesManager.init();
@@ -682,17 +616,6 @@ public class BedWars extends JavaPlugin {
         });
 
 //        registerEvents(new ScoreboardListener()); #Disabled for now
-
-        // Halloween Special
-        if (config.getBoolean(ConfigPath.GENERAL_CONFIGURATION_ENABLE_HALLOWEEN)) HalloweenSpecial.init();
-
-        // Resource Chest
-        if (config.getBoolean(ConfigPath.GENERAL_CONFIGURATION_RESOURCE_CHEST_ENABLED)) ResourceChestFeature.init();
-
-        // Register features
-        SpoilPlayerTNTFeature.init();
-        GenSplitFeature.init();
-        AntiDropFeature.init();
 
         // Initialize the addons
         Bukkit.getScheduler().runTaskLater(this, () -> addonManager.loadAddons(), 60L);

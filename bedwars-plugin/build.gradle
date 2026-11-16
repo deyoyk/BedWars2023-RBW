@@ -27,7 +27,6 @@ repositories {
 
 dependencies {
     api 'io.papermc:paperlib:1.0.8'
-    api 'org.bstats:bstats-bukkit:3.0.2'
     implementation 'com.iridium:IridiumColorAPI:1.0.11' // used by BedWars - API
     slim 'org.apache.commons:commons-lang3:3.14.0' // Used by IridiumColorAPI
 
@@ -38,7 +37,6 @@ dependencies {
     api project(':bedwars-api')
     api project(':versionsupport_common')
 
-    api 'com.andrei1058.vipfeatures:vipfeatures-api:[1.0,)'
     api('com.zaxxer:HikariCP:5.0.1') {
         exclude group: 'slf4-j-api', module: 'slf4-j-api'
     }
@@ -50,16 +48,6 @@ dependencies {
     }
 
     implementation 'dev.racci.slimjar:slimjar:2.0.2'
-    compileOnly 'de.simonsator:Party-and-Friends-MySQL-Edition-Spigot-API:1.5.4-RELEASE'
-    compileOnly('de.simonsator:Spigot-Party-API-For-RedisBungee:1.0.3-SNAPSHOT') {
-        exclude group: 'redis.clients', module: 'jedis'
-    }
-    compileOnly 'de.simonsator:DevelopmentPAFSpigot:1.0.67'
-    compileOnly 'com.alessiodp.parties:parties-api:3.2.9'
-    compileOnly('net.citizensnpcs:citizens-main:2.0.35-SNAPSHOT') {
-        exclude group: 'junit', module: 'junit'
-        exclude group: 'org.bstats', module: 'bstats-bukkit'
-    }
     compileOnly('net.milkbowl.vault:VaultAPI:1.7') {
         exclude group: 'org.bukkit', module: 'bukkit'
     }
@@ -73,6 +61,14 @@ dependencies {
     slim 'com.saicone.rtag:rtag-block:1.5.18'
     slim 'com.saicone.rtag:rtag-entity:1.5.18'
     slim 'com.saicone.rtag:rtag-item:1.5.18'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.2'
+    testImplementation 'org.spigotmc:spigot:1.8.8-R0.1-SNAPSHOT'
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
 }
 
 bukkit {
@@ -89,13 +85,8 @@ bukkit {
     softDepend = [
             'Vault',
             'PlaceholderAPI',
-            'Citizens',
-            'Parties',
             'SlimeWorldManager',
-            'VipFeatures',
             'Enhanced-SlimeWorldManager',
-            'PartyAndFriends',
-            'Spigot-Party-API-PAF',
     ]
 }
 
@@ -153,10 +144,8 @@ tasks.named('shadowJar', com.github.jengelman.gradle.plugins.shadow.tasks.Shadow
     relocate 'io.papermc.lib', 'com.tomkeuper.bedwars.libs.paper'
     relocate 'io.github.slimjar', 'com.tomkeuper.bedwars.libs.slimjar'
     relocate 'org.slf4j', 'com.tomkeuper.bedwars.libs.slf4j'
-    relocate 'org.bstats', 'com.tomkeuper.bedwars.libs.bstats'
     relocate 'org.apache.commons.io', 'com.tomkeuper.bedwars.libs.apache.commons.io'
     relocate 'com.zaxxer.hikari', 'com.tomkeuper.bedwars.libs.hikari'
-    relocate 'com.andrei1058.vipfeatures.api', 'com.tomkeuper.bedwars.libs.vipfeatures'
     relocate 'com.iridium.iridiumcolorapi', 'com.tomkeuper.bedwars.libs.color'
     relocate 'com.flowpowered.nbt', 'com.tomkeuper.bedwars.libs.flowpowered.nbt'
     relocate 'com.infernalsuite.asp.loaders', 'com.tomkeuper.bedwars.libs.asp-loaders'

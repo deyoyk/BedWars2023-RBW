@@ -28,7 +28,6 @@ import com.tomkeuper.bedwars.api.language.Messages;
 import com.tomkeuper.bedwars.api.server.ServerType;
 import com.tomkeuper.bedwars.arena.SetupSession;
 import com.tomkeuper.bedwars.commands.bedwars.subcmds.sensitive.*;
-import com.tomkeuper.bedwars.support.citizens.JoinNPC;
 import com.tomkeuper.bedwars.commands.bedwars.subcmds.regular.*;
 import com.tomkeuper.bedwars.commands.bedwars.subcmds.sensitive.setup.*;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -118,9 +117,6 @@ public class MainCommand extends BukkitCommand implements ParentCommand {
         new SetDisplayName(this, "setDisplayName");
         new SetType(this, "setType");
         new Save(this, "save");
-        if (JoinNPC.isCitizensSupport() && BedWars.getServerType() != ServerType.BUNGEE) {
-            new NPC(this, "npc");
-        }
         new CmdTpStaff(this, "tp");
         new SetKillDropsLoc(this, "setKillDrops");
     }

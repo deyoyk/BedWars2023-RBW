@@ -69,7 +69,6 @@ import com.tomkeuper.bedwars.money.internal.MoneyPerMinuteTask;
 import com.tomkeuper.bedwars.shop.ShopCache;
 import com.tomkeuper.bedwars.shop.main.ShopIndex;
 import com.tomkeuper.bedwars.sidebar.BoardManager;
-import com.tomkeuper.bedwars.support.citizens.JoinNPC;
 import com.tomkeuper.bedwars.support.paper.PaperSupport;
 import com.tomkeuper.bedwars.support.papi.SupportPAPI;
 import com.tomkeuper.bedwars.support.vault.WithEconomy;
@@ -690,7 +689,6 @@ public class Arena implements IArena {
             }
 
         refreshSigns();
-        JoinNPC.updateNPCs(getGroup());
         return true;
     }
 
@@ -818,7 +816,6 @@ public class Arena implements IArena {
 
         showTime.remove(p);
         refreshSigns();
-        JoinNPC.updateNPCs(getGroup());
         return true;
     }
 
@@ -1096,7 +1093,6 @@ public class Arena implements IArena {
         showTime.remove(p);
 
         refreshSigns();
-        JoinNPC.updateNPCs(getGroup());
 
         if (lastHit != null) {
             lastHit.remove();
@@ -1221,7 +1217,6 @@ public class Arena implements IArena {
         }
 
         refreshSigns();
-        JoinNPC.updateNPCs(getGroup());
     }
 
     /**
@@ -1604,7 +1599,6 @@ public class Arena implements IArena {
     public static void setArenaByPlayer(Player p, IArena arena) {
         arenaByPlayer.put(p, arena);
         arena.refreshSigns();
-        JoinNPC.updateNPCs(arena.getGroup());
     }
 
     public static void setArenaByName(IArena arena) {
@@ -1618,7 +1612,6 @@ public class Arena implements IArena {
     public static void removeArenaByPlayer(Player p, @NotNull IArena arena) {
         arenaByPlayer.remove(p);
         arena.refreshSigns();
-        JoinNPC.updateNPCs(arena.getGroup());
     }
 
     /**
