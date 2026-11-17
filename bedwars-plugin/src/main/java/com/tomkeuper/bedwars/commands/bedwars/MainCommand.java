@@ -72,6 +72,8 @@ public class MainCommand extends BukkitCommand implements ParentCommand {
         }
         new CmdStats(this, "stats");
         new com.tomkeuper.bedwars.hotbar.CmdHotbar(this, "hotbar");
+        new com.tomkeuper.bedwars.compass.CmdCompass(this, "compass");
+        new com.tomkeuper.bedwars.spectate.CmdSpec(this, "spec");
         new CmdStart(this, "forceStart");
         new CmdStart(this, "start");
         if (BedWars.getServerType() != ServerType.BUNGEE) {

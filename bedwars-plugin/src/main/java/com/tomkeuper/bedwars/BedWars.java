@@ -331,6 +331,14 @@ public class BedWars extends JavaPlugin {
         registerEvents(new EnderPearlLanded(), new QuitAndTeleportListener(), new BreakPlace(), new DamageDeathMove(), new Inventory(), new Interact(), new RefreshGUI(), new HungerWeatherSpawn(), new CmdProcess(),
                 new FireballListener(), new EggBridge(), new SpectatorListeners(), new BaseListener(), new TargetListener(), new LangListener(), new Warnings(this), new ChatAFK(), new GameEndListener());
 
+        registerEvents(new com.tomkeuper.bedwars.listeners.antidrop.AntiDropListener());
+        registerEvents(new com.tomkeuper.bedwars.deposit.DepositListener());
+        registerEvents(new com.tomkeuper.bedwars.sponge.SpongeListener());
+        com.tomkeuper.bedwars.compass.CompassMessages.initDefaults();
+        com.tomkeuper.bedwars.spectate.CmdSpec.initDefaults();
+        registerEvents(new com.tomkeuper.bedwars.compass.CompassListener());
+        registerEvents(new com.tomkeuper.bedwars.arena.ArenaStartMessageListener());
+
         /* Hotbar layout module */
         hotbarPlayerManager = new HotbarPlayerManager();
         HotbarMenu.initDefaults();

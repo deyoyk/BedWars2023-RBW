@@ -318,6 +318,12 @@ public class BoardManager implements IScoreboardService {
             IArena arena = Arena.getArenaByPlayer(player);
             return null == arena ? "" : null == arena.getTeam(player) ? ""  : String.valueOf(arena.getTeam(player).getColor().chat());
         });
+        placeholderManager.registerPlayerPlaceholder("%bw_team_sort%", placeholderRefresh, tabPlayer -> {
+            Player player = (Player) tabPlayer.getPlayer();
+            IArena arena = Arena.getArenaByPlayer(player);
+            if (null == arena || null == arena.getTeam(player)) return "";
+            return TeamSort.prefix(arena.getTeam(player).getColor());
+        });
 
         placeholderManager.registerPlayerPlaceholder("%bw_prefix_tab%", PrefixRefresh, this::getPrefixTab);
         placeholderManager.registerPlayerPlaceholder("%bw_suffix_tab%", SuffixRefresh, this::getSuffixTab);
