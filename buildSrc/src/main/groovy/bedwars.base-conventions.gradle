@@ -25,8 +25,8 @@ tasks.withType(Javadoc).configureEach {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
-    // Default to Java 17 bytecode to align with modern Paper/Spigot versions and dependent modules
-    options.release = 17
+    // Target Java 8 bytecode: production servers run 1.8.8 on Java 8
+    options.release = 8
     options.compilerArgs += ['-nowarn', '-Xlint:-unchecked', '-Xlint:-deprecation']
 }
 

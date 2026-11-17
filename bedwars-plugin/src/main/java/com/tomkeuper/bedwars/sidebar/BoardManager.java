@@ -103,7 +103,7 @@ public class BoardManager implements IScoreboardService {
     // Ensure our cached managers point to the current TAB instances
     private static void refreshTabManagers() {
         try {
-            var api = TabAPI.getInstance();
+            TabAPI api = TabAPI.getInstance();
             scoreboardManager = api.getScoreboardManager();
             tabListFormatManager = api.getTabListFormatManager();
             placeholderManager = api.getPlaceholderManager();

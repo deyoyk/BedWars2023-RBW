@@ -54,12 +54,12 @@ publishing {
 // Ensure API is built with lowest common denominator to satisfy older versionsupport modules
 // Modules with higher targets (17/21) can consume 11-bytecode just fine
 tasks.named('compileJava', JavaCompile) {
-    options.release = 11
+    options.release = 8
 }
 
 
 // Ensure API targets Java 11 so older versionsupport modules (1.8/1.12) can depend on it
 // Higher-target modules (17/21) can consume Java 11 bytecode without issue
 tasks.named('compileJava', JavaCompile) {
-    options.release = 11
+    options.release = 8
 }

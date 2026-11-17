@@ -95,9 +95,7 @@ import com.tomkeuper.bedwars.support.vault.WithChat;
 import com.tomkeuper.bedwars.support.vault.WithEconomy;
 import com.tomkeuper.bedwars.upgrades.UpgradesManager;
 import com.tomkeuper.bedwars.utils.ItemBuilder;
-import com.tomkeuper.bedwars.utils.SlimLogger;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import io.github.slimjar.app.builder.ApplicationBuilder;
 import me.neznamy.tab.api.TabAPI;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.*;
@@ -119,10 +117,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -188,21 +182,6 @@ public class BedWars extends JavaPlugin {
             serverSoftwareSupport = false;
             return;
         }
-
-        try {
-            Path downloadPath = Paths.get(getDataFolder().getPath() + File.separator + "libs");
-            ApplicationBuilder.appending("BedWars2023")
-                    .logger(new SlimLogger(this))
-                    .downloadDirectoryPath(downloadPath)
-                    .mirrorSelector((a, b) -> a)
-                    .build();
-
-        } catch (IOException | ReflectiveOperationException | URISyntaxException | NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
 
         try {
             Class.forName("com.destroystokyo.paper.PaperConfig");

@@ -33,6 +33,7 @@ import com.tomkeuper.bedwars.commands.party.PartyCommand;
 import com.tomkeuper.bedwars.commands.shout.ShoutCommand;
 import com.tomkeuper.bedwars.configuration.Permissions;
 import com.tomkeuper.bedwars.support.papi.SupportPAPI;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -217,7 +218,7 @@ public class ChatFormatting implements Listener {
         List<Player> recipientsCopy = new ArrayList<>(recipients);
         for (Player player : recipientsCopy) {
             if (player == null) continue;
-            var adventurePlayer = BedWars.plugin.adventure().player(player);
+            Audience adventurePlayer = BedWars.plugin.adventure().player(player);
             adventurePlayer.sendMessage(parsePHolders(format, msg, eventTriggerPlayer, player, team));
         }
     }

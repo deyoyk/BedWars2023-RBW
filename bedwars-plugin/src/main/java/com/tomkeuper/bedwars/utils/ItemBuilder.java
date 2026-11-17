@@ -1,6 +1,5 @@
 package com.tomkeuper.bedwars.utils;
 
-import com.saicone.rtag.util.SkullTexture;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -8,6 +7,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,8 +57,13 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setSkull(String owner) {
-        ItemStack head = SkullTexture.getTexturedHead(owner);
-        this.item = head;
+        // Plain SkullMeta implementation - rtag was dropped (Java 11-only bytecode, not usable on Java 8 servers)
+        ItemMeta meta = item.getItemMeta();
+        if (meta instanceof SkullMeta) {
+            SkullMeta skullMeta = (SkullMeta) meta;
+            skullMeta.setOwner(owner);
+            item.setItemMeta(skullMeta);
+        }
         return this;
     }
 

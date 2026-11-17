@@ -128,7 +128,7 @@ public class PAPISupport extends PlaceholderExpansion {
         // stats placeholders
         if(s.startsWith("stats_")) {
             String targetedStat = s.replaceFirst("stats_", "");
-            if(targetedStat.isEmpty() || targetedStat.isBlank()) {
+            if(targetedStat.isEmpty() || targetedStat.trim().isEmpty()) {
                 return null;
             }
             IPlayerStats stats = BedWars.getStatsManager().getUnsafe(player.getUniqueId());
@@ -411,10 +411,13 @@ public class PAPISupport extends PlaceholderExpansion {
                     Instant startTime = a.getStartTime();
                     if (null != startTime){
                         Duration time = Duration.ofMillis(Instant.now().minusMillis(startTime.toEpochMilli()).toEpochMilli());
-                        if (time.toHours() == 0){
-                            response = String.format("%02d:%02d", time.toMinutes() % 60, time.toSeconds() % 60);
+                        long hours = time.getSeconds() / 3600;
+                        long minutes = (time.getSeconds() % 3600) / 60;
+                        long seconds = time.getSeconds() % 60;
+                        if (hours == 0){
+                            response = String.format("%02d:%02d", minutes, seconds);
                         } else {
-                            response = String.format("%02d:%02d:%02d", time.toHours(), time.toMinutes() % 60, time.toSeconds() % 60);
+                            response = String.format("%02d:%02d:%02d", hours, minutes, seconds);
                         }
                     } else response = "";
                 }

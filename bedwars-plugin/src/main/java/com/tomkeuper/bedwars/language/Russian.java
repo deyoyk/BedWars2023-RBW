@@ -70,9 +70,9 @@ public class Russian extends Language{
         yml.addDefault(Messages.COMMAND_LEAVE_DENIED_NOT_IN_ARENA, "%bw_lang_prefix%&cТы не на арене!");
         yml.addDefault(Messages.COMMAND_LEAVE_HAS_PARTY_POPUP_TITLE, "Are you sure?");
         yml.addDefault(Messages.COMMAND_LEAVE_HAS_PARTY_POPUP_STAY, "&cNo");
-        yml.addDefault(Messages.COMMAND_LEAVE_HAS_PARTY_POPUP_STAY_LORE, List.of("&fStay in the arena"));
+        yml.addDefault(Messages.COMMAND_LEAVE_HAS_PARTY_POPUP_STAY_LORE, Arrays.asList("&fStay in the arena"));
         yml.addDefault(Messages.COMMAND_LEAVE_HAS_PARTY_POPUP_BRING_PARTY, "&aYes");
-        yml.addDefault(Messages.COMMAND_LEAVE_HAS_PARTY_POPUP_BRING_PARTY_LORE, List.of("&fSummon party with you"));
+        yml.addDefault(Messages.COMMAND_LEAVE_HAS_PARTY_POPUP_BRING_PARTY_LORE, Arrays.asList("&fSummon party with you"));
         yml.addDefault(Messages.ARENA_GUI_INV_NAME, "&8Доступные арены");
         yml.addDefault(Messages.ARENA_GUI_ARENA_CONTENT_NAME, "&a&l%bw_name%");
         yml.addDefault(Messages.ARENA_GUI_ARENA_CONTENT_LORE, Arrays.asList("", "&7Статус: %bw_team_status%", "&7Игроков: &f%bw_on%&7/&f%bw_max%", "&7Тип: &a%bw_group%", "", "&aЛКМ для входа.", "&eПКМ для слежки."));
@@ -136,27 +136,27 @@ public class Russian extends Language{
         yml.addDefault("scoreboard.4v4v4v4.playing", Arrays.asList("&e&lBED WARS", "&7%bw_date%", "", "&f%bw_next_event% in &a%bw_time%", "",
                 "%bw_team_1%", "%bw_team_2%", "%bw_team_3%", "%bw_team_4%", "", "&fУбийств: &a%bw_kills%", "&fФинальных убийств: &a%bw_final_kills%", "&fКроватей уничтожено: &a%bw_beds%", "", "&e%bw_server_ip%"));
 
-        yml.addDefault(Messages.FORMATTING_SCOREBOARD_TAB_PREFIX_SPECTATOR, List.of("&7"));
+        yml.addDefault(Messages.FORMATTING_SCOREBOARD_TAB_PREFIX_SPECTATOR, Arrays.asList("&7"));
         yml.addDefault(Messages.FORMATTING_SCOREBOARD_TAB_SUFFIX_SPECTATOR, new ArrayList<>());
         yml.addDefault(Messages.FORMATTING_SCOREBOARD_TAB_PREFIX_RESTARTING, Arrays.asList("%bw_team_color%&l%bw_team_letter% &r%bw_team_color%", "%bw_team% ", "%bw_v_prefix% %bw_team_color%"));
         yml.addDefault(Messages.FORMATTING_SCOREBOARD_TAB_SUFFIX_RESTARTING, new ArrayList<>());
         yml.addDefault(Messages.FORMATTING_SCOREBOARD_TAB_PREFIX_PLAYING, Arrays.asList("%bw_team_color%&l%bw_team_letter% &r%bw_team_color%", "%bw_team% ", "%bw_v_prefix% %bw_team_color%&l%bw_team_letter% &r%bw_team_color%"));
         yml.addDefault(Messages.FORMATTING_SCOREBOARD_TAB_SUFFIX_PLAYING, new ArrayList<>());
-        yml.addDefault(Messages.FORMATTING_SCOREBOARD_TAB_PREFIX_STARTING, List.of("%bw_v_prefix% "));
+        yml.addDefault(Messages.FORMATTING_SCOREBOARD_TAB_PREFIX_STARTING, Arrays.asList("%bw_v_prefix% "));
         yml.addDefault(Messages.FORMATTING_SCOREBOARD_TAB_SUFFIX_STARTING, new ArrayList<>());
-        yml.addDefault(Messages.FORMATTING_SCOREBOARD_TAB_PREFIX_WAITING, List.of("%bw_v_prefix% "));
+        yml.addDefault(Messages.FORMATTING_SCOREBOARD_TAB_PREFIX_WAITING, Arrays.asList("%bw_v_prefix% "));
         yml.addDefault(Messages.FORMATTING_SCOREBOARD_TAB_SUFFIX_WAITING, new ArrayList<>());
-        yml.addDefault(Messages.FORMATTING_SCOREBOARD_TAB_PREFIX_LOBBY, List.of("%bw_v_prefix% "));
+        yml.addDefault(Messages.FORMATTING_SCOREBOARD_TAB_PREFIX_LOBBY, Arrays.asList("%bw_v_prefix% "));
         yml.addDefault(Messages.FORMATTING_SCOREBOARD_TAB_SUFFIX_LOBBY, new ArrayList<>());
-        yml.addDefault(Messages.FORMATTING_SCOREBOARD_HEAD_PREFIX_RESTARTING, List.of("%bw_team_color%&l%bw_team_letter% &r%bw_team_color%"));
+        yml.addDefault(Messages.FORMATTING_SCOREBOARD_HEAD_PREFIX_RESTARTING, Arrays.asList("%bw_team_color%&l%bw_team_letter% &r%bw_team_color%"));
         yml.addDefault(Messages.FORMATTING_SCOREBOARD_HEAD_SUFFIX_RESTARTING, new ArrayList<>());
-        yml.addDefault(Messages.FORMATTING_SCOREBOARD_HEAD_PREFIX_PLAYING, List.of("%bw_team_color%&l%bw_team_letter% &r%bw_team_color%"));
+        yml.addDefault(Messages.FORMATTING_SCOREBOARD_HEAD_PREFIX_PLAYING, Arrays.asList("%bw_team_color%&l%bw_team_letter% &r%bw_team_color%"));
         yml.addDefault(Messages.FORMATTING_SCOREBOARD_HEAD_SUFFIX_PLAYING, new ArrayList<>());
-        yml.addDefault(Messages.FORMATTING_SCOREBOARD_HEAD_PREFIX_STARTING, List.of("%bw_v_prefix% "));
+        yml.addDefault(Messages.FORMATTING_SCOREBOARD_HEAD_PREFIX_STARTING, Arrays.asList("%bw_v_prefix% "));
         yml.addDefault(Messages.FORMATTING_SCOREBOARD_HEAD_SUFFIX_STARTING, new ArrayList<>());
-        yml.addDefault(Messages.FORMATTING_SCOREBOARD_HEAD_PREFIX_WAITING, List.of("%bw_v_prefix% "));
+        yml.addDefault(Messages.FORMATTING_SCOREBOARD_HEAD_PREFIX_WAITING, Arrays.asList("%bw_v_prefix% "));
         yml.addDefault(Messages.FORMATTING_SCOREBOARD_HEAD_SUFFIX_WAITING, new ArrayList<>());
-        yml.addDefault(Messages.FORMATTING_SCOREBOARD_HEAD_PREFIX_LOBBY, List.of("%bw_v_prefix% "));
+        yml.addDefault(Messages.FORMATTING_SCOREBOARD_HEAD_PREFIX_LOBBY, Arrays.asList("%bw_v_prefix% "));
         yml.addDefault(Messages.FORMATTING_SCOREBOARD_HEAD_SUFFIX_LOBBY, new ArrayList<>());
 
         yml.addDefault(Messages.FORMATTING_SCOREBOARD_DATE, "dd/MM/yy");

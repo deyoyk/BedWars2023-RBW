@@ -20,7 +20,6 @@
 
 package com.tomkeuper.bedwars.arena;
 
-import com.saicone.rtag.util.SkullTexture;
 import com.tomkeuper.bedwars.BedWars;
 import com.tomkeuper.bedwars.api.arena.GameState;
 import com.tomkeuper.bedwars.api.arena.IArena;
@@ -87,6 +86,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -1869,15 +1869,17 @@ public class Arena implements IArena {
             ItemStack item = lobbyItem.getItem();
 
             if (BedWars.nms.isPlayerHead(item.getType().name(), item.getDurability())) {
-                ItemStack head = SkullTexture.getTexturedHead(p.getName());
+                // Plain SkullMeta head - rtag was dropped (Java 11-only bytecode)
+                ItemStack head = new ItemStack(item.getType(), 1, item.getDurability());
                 SkullMeta skullMeta = (SkullMeta) head.getItemMeta();
+                skullMeta.setOwner(p.getName());
                 ItemMeta origMeta = item.getItemMeta();
                 if (origMeta != null) {
                     skullMeta.setDisplayName(origMeta.getDisplayName());
                     skullMeta.setLore(origMeta.getLore());
                     for (ItemFlag flag : origMeta.getItemFlags())
                         skullMeta.addItemFlags(flag);
-                    for (var e : origMeta.getEnchants().entrySet())
+                    for (Map.Entry<Enchantment, Integer> e : origMeta.getEnchants().entrySet())
                         skullMeta.addEnchant(e.getKey(), e.getValue(), true);
                 }
                 head.setItemMeta(skullMeta);
@@ -1913,15 +1915,17 @@ public class Arena implements IArena {
             ItemStack item = preGameItem.getItem();
 
             if (BedWars.nms.isPlayerHead(item.getType().name(), item.getDurability())) {
-                ItemStack head = SkullTexture.getTexturedHead(p.getName());
+                // Plain SkullMeta head - rtag was dropped (Java 11-only bytecode)
+                ItemStack head = new ItemStack(item.getType(), 1, item.getDurability());
                 SkullMeta skullMeta = (SkullMeta) head.getItemMeta();
+                skullMeta.setOwner(p.getName());
                 ItemMeta origMeta = item.getItemMeta();
                 if (origMeta != null) {
                     skullMeta.setDisplayName(origMeta.getDisplayName());
                     skullMeta.setLore(origMeta.getLore());
                     for (ItemFlag flag : origMeta.getItemFlags())
                         skullMeta.addItemFlags(flag);
-                    for (var e : origMeta.getEnchants().entrySet())
+                    for (Map.Entry<Enchantment, Integer> e : origMeta.getEnchants().entrySet())
                         skullMeta.addEnchant(e.getKey(), e.getValue(), true);
                 }
                 head.setItemMeta(skullMeta);
@@ -1957,15 +1961,17 @@ public class Arena implements IArena {
             ItemStack item = spectatorItem.getItem();
 
             if (BedWars.nms.isPlayerHead(item.getType().name(), item.getDurability())) {
-                ItemStack head = SkullTexture.getTexturedHead(p.getName());
+                // Plain SkullMeta head - rtag was dropped (Java 11-only bytecode)
+                ItemStack head = new ItemStack(item.getType(), 1, item.getDurability());
                 SkullMeta skullMeta = (SkullMeta) head.getItemMeta();
+                skullMeta.setOwner(p.getName());
                 ItemMeta origMeta = item.getItemMeta();
                 if (origMeta != null) {
                     skullMeta.setDisplayName(origMeta.getDisplayName());
                     skullMeta.setLore(origMeta.getLore());
                     for (ItemFlag flag : origMeta.getItemFlags())
                         skullMeta.addItemFlags(flag);
-                    for (var e : origMeta.getEnchants().entrySet())
+                    for (Map.Entry<Enchantment, Integer> e : origMeta.getEnchants().entrySet())
                         skullMeta.addEnchant(e.getKey(), e.getValue(), true);
                 }
                 head.setItemMeta(skullMeta);
@@ -2467,7 +2473,7 @@ public class Arena implements IArena {
     public static List<IArena> getSorted(List<IArena> arenas) {
         List<IArena> sorted = new ArrayList<>(arenas);
         Collections.shuffle(sorted); // pre shuffle arena list
-        sorted.sort(new Comparator<>() {
+        sorted.sort(new Comparator<IArena>() {
             @Override
             public int compare(IArena o1, IArena o2) {
                 if (o1.getStatus() == GameState.starting && o2.getStatus() == GameState.starting) {

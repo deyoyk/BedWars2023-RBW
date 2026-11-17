@@ -4,7 +4,7 @@ dependencies {
 }
 
 tasks.named('compileJava', JavaCompile) {
-    options.release = 11
+    options.release = 8
 }
 
 repositories {

@@ -4,11 +4,13 @@ dependencies {
         exclude group: 'commons-lang', module: 'commons-lang'
     }
     compileOnly 'com.grinderwolf:slimeworldmanager-api:2.2.1'
+    // flow-nbt classes live inside the SWM plugin jar (internal package) at runtime
+    compileOnly files('libs/slimeworldmanager-plugin-2.2.1-internal.jar')
     compileOnly 'commons-io:commons-io:2.11.0'
 }
 
 tasks.named('compileJava', JavaCompile) {
-    options.release = 11
+    options.release = 8
 }
 
 repositories {

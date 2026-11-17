@@ -81,7 +81,6 @@ public class DefaultGenAnimation implements IGeneratorAnimation {
         ((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
     }
 
-    @SafeVarargs
     private void sendPackets(Player p, Packet<PacketListenerPlayOut>... packets) {
         PlayerConnection connection = ((CraftPlayer) p).getHandle().playerConnection;
         for (Packet<PacketListenerPlayOut> packet : packets) {
