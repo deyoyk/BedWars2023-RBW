@@ -35,19 +35,22 @@ public class HotbarMenu implements Listener {
     private static final Map<UUID, String> selection = new HashMap<>();
     private static final Map<UUID, Boolean> open = new HashMap<>();
 
-    private static final int INFO_SLOT = 51;
-    private static final int RESET_SLOT = 53;
+    private static final int INFO_SLOT = 4;
+    private static final int RESET_SLOT = 40;
+
+    private static final int[] SELECTED_DECOR_SLOTS = {18, 19, 20, 21, 22, 23, 24, 25, 26};
+    private static final int[] TOP_DECOR_SLOTS = {9, 10, 11, 12, 13, 14, 15, 16, 17};
 
     private static final List<PaletteEntry> PALETTE = new ArrayList<>();
 
     static {
-        PALETTE.add(new PaletteEntry(19, "melee", "Melee Swords", "§cMelee", Material.IRON_SWORD, (short) 0));
-        PALETTE.add(new PaletteEntry(20, "blocks", "Blocks", "§eBlocks", Material.WOOL, (short) 0));
-        PALETTE.add(new PaletteEntry(21, "tools", "Tools", "§6Tools", Material.STONE_PICKAXE, (short) 0));
-        PALETTE.add(new PaletteEntry(22, "ranged", "Bow & Arrows", "§9Ranged", Material.BOW, (short) 0));
-        PALETTE.add(new PaletteEntry(23, "potions", "Potions", "§dPotions", Material.POTION, (short) 3));
-        PALETTE.add(new PaletteEntry(24, "utility.fireball", "Fireball", "§aUtility", Material.FIREBALL, (short) 0));
-        PALETTE.add(new PaletteEntry(25, "utility", "Utility", "§aUtility", Material.TNT, (short) 0));
+        PALETTE.add(new PaletteEntry(10, "melee", "Melee Swords", "§cMelee", Material.IRON_SWORD, (short) 0));
+        PALETTE.add(new PaletteEntry(11, "blocks", "Blocks", "§eBlocks", Material.WOOL, (short) 0));
+        PALETTE.add(new PaletteEntry(12, "tools", "Tools", "§6Tools", Material.STONE_PICKAXE, (short) 0));
+        PALETTE.add(new PaletteEntry(13, "ranged", "Bow & Arrows", "§9Ranged", Material.BOW, (short) 0));
+        PALETTE.add(new PaletteEntry(14, "potions", "Potions", "§dPotions", Material.POTION, (short) 3));
+        PALETTE.add(new PaletteEntry(15, "utility.fireball", "Fireball", "§aUtility", Material.FIREBALL, (short) 0));
+        PALETTE.add(new PaletteEntry(16, "utility", "Utility", "§aUtility", Material.TNT, (short) 0));
     }
 
     static final class PaletteEntry {
@@ -81,7 +84,7 @@ public class HotbarMenu implements Listener {
             if (!l.exists(TITLE_PATH) || "&8Hotbar Layout".equals(l.getString(TITLE_PATH))) l.set(TITLE_PATH, "&8Hotbar Editor");
             if (!l.exists("hotbar-menu-info-name")) l.set("hotbar-menu-info-name", "&6Hotbar Editor");
             if (!l.exists("hotbar-menu-info-lore")) l.set("hotbar-menu-info-lore",
-                    "&7Click a palette item below, then click a hotbar slot to assign it. Right-click a slot to clear it.");
+                    "&7Click a category, then click a hotbar slot to assign it. Right-click a slot to clear it.");
             if (!l.exists("hotbar-menu-palette-lore")) l.set("hotbar-menu-palette-lore",
                     "&7Click to select, then click a hotbar slot above.");
             if (!l.exists("hotbar-menu-reset-name")) l.set("hotbar-menu-reset-name", "&cReset Layout");
@@ -111,10 +114,21 @@ public class HotbarMenu implements Listener {
         String[] slots = HotbarPlayerManager.getInstance().get(player.getUniqueId());
 
         ItemStack pane = BedWars.nms.setTag(separator(), "hbm", "separator");
+        ItemStack greenPane = BedWars.nms.setTag(greenSeparator(), "hbm", "separator");
         for (int i = 0; i < 54; i++) inv.setItem(i, pane);
+
+        if (selected == null) {
+            for (int i : TOP_DECOR_SLOTS) inv.setItem(i, greenPane);
+        } else {
+            for (int i : SELECTED_DECOR_SLOTS) inv.setItem(i, greenPane);
+        }
 
         for (int slot = 0; slot < 9; slot++) {
             inv.setItem(slot, previewItem(player, slot, slots[slot]));
+        }
+
+        for (PaletteEntry entry : PALETTE) {
+            inv.setItem(entry.slot, paletteItem(player, entry, selected));
         }
 
         ItemStack info = new ItemStack(Material.BOOK);
@@ -125,10 +139,6 @@ public class HotbarMenu implements Listener {
             info.setItemMeta(infoMeta);
         }
         inv.setItem(INFO_SLOT, BedWars.nms.setTag(info, "hbm", "info"));
-
-        for (PaletteEntry entry : PALETTE) {
-            inv.setItem(entry.slot, paletteItem(player, entry, selected));
-        }
 
         ItemStack reset = BedWars.nms.setTag(new ItemStack(Material.TNT), "hbm", "reset");
         ItemMeta resetMeta = reset.getItemMeta();
@@ -261,6 +271,10 @@ public class HotbarMenu implements Listener {
 
     private static ItemStack separator() {
         return new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 15);
+    }
+
+    private static ItemStack greenSeparator() {
+        return new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 5);
     }
 
     private static Material categoryDisplayMaterial(HotbarCategory category) {
