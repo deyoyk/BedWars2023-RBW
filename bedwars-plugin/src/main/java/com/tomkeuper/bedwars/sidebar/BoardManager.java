@@ -29,6 +29,7 @@ import com.tomkeuper.bedwars.api.language.Language;
 import com.tomkeuper.bedwars.api.language.Messages;
 import com.tomkeuper.bedwars.api.server.ServerType;
 import com.tomkeuper.bedwars.api.sidebar.IScoreboardService;
+import com.tomkeuper.bedwars.api.stats.IPlayerStats;
 import com.tomkeuper.bedwars.api.tasks.PlayingTask;
 import com.tomkeuper.bedwars.arena.Arena;
 import com.tomkeuper.bedwars.levels.internal.PlayerLevel;
@@ -240,28 +241,45 @@ public class BoardManager implements IScoreboardService {
         placeholderManager.registerPlayerPlaceholder("%bw_group%", placeholderRefresh, player -> Arena.getArenaByPlayer((Player) player.getPlayer()) == null ? "" : Arena.getArenaByPlayer((Player) player.getPlayer()).getDisplayGroup((Player) player.getPlayer()));
         placeholderManager.registerPlayerPlaceholder("%bw_kills%", placeholderRefresh, player -> {
             if (null != Arena.getArenaByPlayer((Player) player.getPlayer())) return String.valueOf(Arena.getArenaByPlayer((Player) player.getPlayer()).getPlayerKills((Player) player.getPlayer(), false));
-            return String.valueOf(BedWars.getStatsManager().get(player.getUniqueId()).getKills());
+            IPlayerStats stats = BedWars.getStatsManager().getUnsafe(player.getUniqueId());
+            return String.valueOf(stats == null ? 0 : stats.getKills());
         });
         placeholderManager.registerPlayerPlaceholder("%bw_total_kills%", placeholderRefresh, player -> {
             if (null != Arena.getArenaByPlayer((Player) player.getPlayer())) return String.valueOf(Arena.getArenaByPlayer((Player) player.getPlayer()).getPlayerTotalKills((Player) player.getPlayer()));
-            return String.valueOf(BedWars.getStatsManager().get(player.getUniqueId()).getTotalKills());
+            IPlayerStats stats = BedWars.getStatsManager().getUnsafe(player.getUniqueId());
+            return String.valueOf(stats == null ? 0 : stats.getTotalKills());
         });
         placeholderManager.registerPlayerPlaceholder("%bw_final_kills%", placeholderRefresh, player -> {
             if (null != Arena.getArenaByPlayer((Player) player.getPlayer())) return String.valueOf(Arena.getArenaByPlayer((Player) player.getPlayer()).getPlayerKills((Player) player.getPlayer(), true));
-            return String.valueOf(BedWars.getStatsManager().get(player.getUniqueId()).getFinalKills());
+            IPlayerStats stats = BedWars.getStatsManager().getUnsafe(player.getUniqueId());
+            return String.valueOf(stats == null ? 0 : stats.getFinalKills());
         });
         placeholderManager.registerPlayerPlaceholder("%bw_beds%", placeholderRefresh, player -> {
             if (null != Arena.getArenaByPlayer((Player) player.getPlayer())) return String.valueOf(Arena.getArenaByPlayer((Player) player.getPlayer()).getPlayerBedsDestroyed((Player) player.getPlayer()));
-            return String.valueOf(BedWars.getStatsManager().get(player.getUniqueId()).getBedsDestroyed());
+            IPlayerStats stats = BedWars.getStatsManager().getUnsafe(player.getUniqueId());
+            return String.valueOf(stats == null ? 0 : stats.getBedsDestroyed());
         });
         placeholderManager.registerPlayerPlaceholder("%bw_deaths%", placeholderRefresh, player -> {
             if (null != Arena.getArenaByPlayer((Player) player.getPlayer())) return String.valueOf(Arena.getArenaByPlayer((Player) player.getPlayer()).getPlayerDeaths((Player) player.getPlayer(), false));
-            return String.valueOf(BedWars.getStatsManager().get(player.getUniqueId()).getDeaths());
+            IPlayerStats stats = BedWars.getStatsManager().getUnsafe(player.getUniqueId());
+            return String.valueOf(stats == null ? 0 : stats.getDeaths());
         });
-        placeholderManager.registerPlayerPlaceholder("%bw_final_deaths%", placeholderRefresh, player -> String.valueOf(BedWars.getStatsManager().get(player.getUniqueId()).getFinalDeaths()));
-        placeholderManager.registerPlayerPlaceholder("%bw_wins%", placeholderRefresh, player -> String.valueOf(BedWars.getStatsManager().get(player.getUniqueId()).getWins()));
-        placeholderManager.registerPlayerPlaceholder("%bw_losses%", placeholderRefresh, player -> String.valueOf(BedWars.getStatsManager().get(player.getUniqueId()).getLosses()));
-        placeholderManager.registerPlayerPlaceholder("%bw_games_played%", placeholderRefresh, player -> String.valueOf(BedWars.getStatsManager().get(player.getUniqueId()).getGamesPlayed()));
+        placeholderManager.registerPlayerPlaceholder("%bw_final_deaths%", placeholderRefresh, player -> {
+            IPlayerStats stats = BedWars.getStatsManager().getUnsafe(player.getUniqueId());
+            return String.valueOf(stats == null ? 0 : stats.getFinalDeaths());
+        });
+        placeholderManager.registerPlayerPlaceholder("%bw_wins%", placeholderRefresh, player -> {
+            IPlayerStats stats = BedWars.getStatsManager().getUnsafe(player.getUniqueId());
+            return String.valueOf(stats == null ? 0 : stats.getWins());
+        });
+        placeholderManager.registerPlayerPlaceholder("%bw_losses%", placeholderRefresh, player -> {
+            IPlayerStats stats = BedWars.getStatsManager().getUnsafe(player.getUniqueId());
+            return String.valueOf(stats == null ? 0 : stats.getLosses());
+        });
+        placeholderManager.registerPlayerPlaceholder("%bw_games_played%", placeholderRefresh, player -> {
+            IPlayerStats stats = BedWars.getStatsManager().getUnsafe(player.getUniqueId());
+            return String.valueOf(stats == null ? 0 : stats.getGamesPlayed());
+        });
         placeholderManager.registerPlayerPlaceholder("%bw_next_event%", placeholderRefresh, player -> getNextEventName((Player) player.getPlayer()));
         placeholderManager.registerPlayerPlaceholder("%bw_on%", placeholderRefresh, player -> String.valueOf(getOnlinePlayers((Player) player.getPlayer())));
         placeholderManager.registerPlayerPlaceholder("%bw_max%", placeholderRefresh, player -> Arena.getArenaByPlayer((Player) player.getPlayer()) == null ? "" : String.valueOf(Arena.getArenaByPlayer((Player) player.getPlayer()).getMaxPlayers()));
@@ -327,8 +345,9 @@ public class BoardManager implements IScoreboardService {
                 }
             }
 
-            assert lines != null;
+            if (lines == null || lines.isEmpty()) return "";
             titleLine = lines.get(0);
+            if (titleLine == null || titleLine.isEmpty()) return "";
             String[] titleArray = titleLine.split(",");
 
             if (i+1 >= titleArray.length){
@@ -432,26 +451,20 @@ public class BoardManager implements IScoreboardService {
      */
     private String getTeamPlaceholder(Player player, int teamNumber){
         Arena arena = (Arena) Arena.getArenaByPlayer(player);
-        if (arena == null) return null;
+        if (arena == null) return "";
+        if (arena.getStatus() != GameState.playing && arena.getStatus() != GameState.restarting) return "";
         Language language = Language.getPlayerLanguage(player);
         String genericTeamFormat = language.m(Messages.FORMATTING_SCOREBOARD_TEAM_GENERIC);
-        ITeam team;
-        try {
-            team = arena.getTeams().get(teamNumber-1);
-        } catch (IndexOutOfBoundsException ignored){
-            return null;
-        }
+        List<ITeam> teams = arena.getTeams();
+        if (teams == null || teamNumber < 1 || teamNumber > teams.size()) return "";
+        ITeam team = teams.get(teamNumber - 1);
+        if (team == null) return "";
         String teamName = team.getDisplayName(language);
-        if (arena.getTeams().size() >= teamNumber) {
-            return genericTeamFormat
-                    .replace("%bw_team_letter%", String.valueOf(teamName.length() != 0 ? teamName.charAt(0) : ""))
-                    .replace("%bw_team_color%", team.getColor().chat().toString())
-                    .replace("%bw_team_name%", teamName)
-                    .replace("%bw_team_status%", getTeamStatus(team, player));
-        } else {
-            // skip line
-            return null;
-        }
+        return genericTeamFormat
+                .replace("%bw_team_letter%", String.valueOf(teamName.length() != 0 ? teamName.charAt(0) : ""))
+                .replace("%bw_team_color%", team.getColor().chat().toString())
+                .replace("%bw_team_name%", teamName)
+                .replace("%bw_team_status%", getTeamStatus(team, player));
     }
 
     /**
