@@ -35,22 +35,21 @@ public class HotbarMenu implements Listener {
     private static final Map<UUID, String> selection = new HashMap<>();
     private static final Map<UUID, Boolean> open = new HashMap<>();
 
-    private static final int INFO_SLOT = 4;
-    private static final int RESET_SLOT = 40;
+    private static final int RESET_SLOT = 49;
 
-    private static final int[] SELECTED_DECOR_SLOTS = {18, 19, 20, 21, 22, 23, 24, 25, 26};
+    private static final int[] SELECTED_DECOR_SLOTS = {36, 37, 38, 39, 40, 41, 42, 43, 44};
     private static final int[] TOP_DECOR_SLOTS = {9, 10, 11, 12, 13, 14, 15, 16, 17};
 
     private static final List<PaletteEntry> PALETTE = new ArrayList<>();
 
     static {
-        PALETTE.add(new PaletteEntry(10, "melee", "Melee Swords", "§cMelee", Material.IRON_SWORD, (short) 0));
-        PALETTE.add(new PaletteEntry(11, "blocks", "Blocks", "§eBlocks", Material.WOOL, (short) 0));
-        PALETTE.add(new PaletteEntry(12, "tools", "Tools", "§6Tools", Material.STONE_PICKAXE, (short) 0));
-        PALETTE.add(new PaletteEntry(13, "ranged", "Bow & Arrows", "§9Ranged", Material.BOW, (short) 0));
-        PALETTE.add(new PaletteEntry(14, "potions", "Potions", "§dPotions", Material.POTION, (short) 3));
-        PALETTE.add(new PaletteEntry(15, "utility.fireball", "Fireball", "§aUtility", Material.FIREBALL, (short) 0));
-        PALETTE.add(new PaletteEntry(16, "utility", "Utility", "§aUtility", Material.TNT, (short) 0));
+        PALETTE.add(new PaletteEntry(19, "melee", "Melee Swords", "§cMelee", Material.IRON_SWORD, (short) 0));
+        PALETTE.add(new PaletteEntry(20, "blocks", "Blocks", "§eBlocks", Material.WOOL, (short) 0));
+        PALETTE.add(new PaletteEntry(21, "tools", "Tools", "§6Tools", Material.STONE_PICKAXE, (short) 0));
+        PALETTE.add(new PaletteEntry(22, "ranged", "Bow & Arrows", "§9Ranged", Material.BOW, (short) 0));
+        PALETTE.add(new PaletteEntry(23, "potions", "Potions", "§dPotions", Material.POTION, (short) 3));
+        PALETTE.add(new PaletteEntry(24, "utility.fireball", "Fireball", "§aUtility", Material.FIREBALL, (short) 0));
+        PALETTE.add(new PaletteEntry(25, "utility", "Utility", "§aUtility", Material.TNT, (short) 0));
     }
 
     static final class PaletteEntry {
@@ -124,23 +123,14 @@ public class HotbarMenu implements Listener {
         }
 
         for (int slot = 0; slot < 9; slot++) {
-            inv.setItem(slot, previewItem(player, slot, slots[slot]));
+            inv.setItem(36 + slot, previewItem(player, slot, slots[slot]));
         }
 
         for (PaletteEntry entry : PALETTE) {
             inv.setItem(entry.slot, paletteItem(player, entry, selected));
         }
 
-        ItemStack info = new ItemStack(Material.BOOK);
-        ItemMeta infoMeta = info.getItemMeta();
-        if (infoMeta != null) {
-            infoMeta.setDisplayName(color(Language.getMsg(player, "hotbar-menu-info-name")));
-            infoMeta.setLore(Collections.singletonList(color(Language.getMsg(player, "hotbar-menu-info-lore"))));
-            info.setItemMeta(infoMeta);
-        }
-        inv.setItem(INFO_SLOT, BedWars.nms.setTag(info, "hbm", "info"));
-
-        ItemStack reset = BedWars.nms.setTag(new ItemStack(Material.TNT), "hbm", "reset");
+        ItemStack reset = BedWars.nms.setTag(new ItemStack(Material.BARRIER), "hbm", "reset");
         ItemMeta resetMeta = reset.getItemMeta();
         if (resetMeta != null) {
             resetMeta.setDisplayName(color(Language.getMsg(player, "hotbar-menu-reset-name")));
