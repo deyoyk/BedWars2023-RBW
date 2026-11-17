@@ -21,6 +21,7 @@
 package com.tomkeuper.bedwars.listeners;
 
 import com.tomkeuper.bedwars.BedWars;
+import com.tomkeuper.bedwars.api.arena.GameState;
 import com.tomkeuper.bedwars.api.arena.IArena;
 import com.tomkeuper.bedwars.api.configuration.ConfigPath;
 import com.tomkeuper.bedwars.api.events.gameplay.EggBridgeThrowEvent;
@@ -119,6 +120,10 @@ public class EggBridge implements Listener {
                     event.setCancelled(true);
                     return;
                 }
+            }
+
+            if (arena.getStatus() != GameState.playing || arena.getTeam(shooter) == null) {
+                return;
             }
 
             EggBridgeThrowEvent throwEvent = new EggBridgeThrowEvent(shooter, arena);

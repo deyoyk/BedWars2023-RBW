@@ -340,6 +340,10 @@ public class BedWars extends JavaPlugin {
         registerEvents(new com.tomkeuper.bedwars.arena.ArenaStartMessageListener());
         com.tomkeuper.bedwars.listeners.HeightLimitListener.initDefaults();
         registerEvents(new com.tomkeuper.bedwars.listeners.HeightLimitListener());
+        if (config.getBoolean(ConfigPath.GENERAL_CONFIGURATION_GOLDEN_GG_ENABLED)
+                || config.getBoolean(ConfigPath.GENERAL_CONFIGURATION_AUTO_GG_ENABLED)) {
+            registerEvents(new com.tomkeuper.bedwars.arena.feature.GGFeature());
+        }
 
         /* Hotbar layout module */
         hotbarPlayerManager = new HotbarPlayerManager();

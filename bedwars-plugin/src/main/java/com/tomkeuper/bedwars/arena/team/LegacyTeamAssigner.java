@@ -72,7 +72,7 @@ public class LegacyTeamAssigner {
                                 }
                                 TeamAssignEvent ee = new TeamAssignEvent(p, t, arena);
                                 Bukkit.getPluginManager().callEvent(ee);
-                                if (!e.isCancelled()) {
+                                if (!ee.isCancelled()) {
                                     t.addPlayers(mem);
                                 }
                                 skip.add(mem);

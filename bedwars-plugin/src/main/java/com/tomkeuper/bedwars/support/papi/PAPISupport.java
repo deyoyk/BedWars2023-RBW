@@ -138,10 +138,10 @@ public class PAPISupport extends PlaceholderExpansion {
             switch (targetedStat) {
                 case "firstplay":
                     Instant firstPlay = stats.getFirstPlay();
-                    return new SimpleDateFormat(getMsg(player, Messages.FORMATTING_STATS_DATE_FORMAT)).format(firstPlay != null ? Timestamp.from(firstPlay) : null);
+                    return firstPlay == null ? "" : new SimpleDateFormat(getMsg(player, Messages.FORMATTING_STATS_DATE_FORMAT)).format(Timestamp.from(firstPlay));
                 case "lastplay":
                     Instant lastPlay = stats.getLastPlay();
-                    return new SimpleDateFormat(getMsg(player, Messages.FORMATTING_STATS_DATE_FORMAT)).format(lastPlay != null ? Timestamp.from(lastPlay) : null);
+                    return lastPlay == null ? "" : new SimpleDateFormat(getMsg(player, Messages.FORMATTING_STATS_DATE_FORMAT)).format(Timestamp.from(lastPlay));
                 case "total_kills":
                     return String.valueOf(stats.getTotalKills());
                 case "kills":
@@ -290,10 +290,10 @@ public class PAPISupport extends PlaceholderExpansion {
             case "player_deaths_total": return (arena != null) ? String.valueOf(arena.getPlayerDeaths(player,true)+arena.getPlayerDeaths(player,false)) : "";
             case "player_deaths_final": return (arena != null) ? String.valueOf(arena.getPlayerDeaths(player, true)) : "";
             case "player_beds": return (arena != null) ? String.valueOf(arena.getPlayerBedsDestroyed(player)) : "";
-            case "status_color": return (arena != null) ? (arena.isSpectator(player) ? ChatColor.GRAY : arena.getTeam(player).getColor().chat()).toString() : "";
-            case "status_letter": return (arena != null) ? arena.isSpectator(player) ? getSpectatorLetter(lang) : arena.getTeam(player).getName().substring(0,1).toUpperCase() : "";
+            case "status_color": return (arena != null) ? (arena.isSpectator(player) ? ChatColor.GRAY : arena.getTeam(player) == null ? ChatColor.WHITE : arena.getTeam(player).getColor().chat()).toString() : "";
+            case "status_letter": return (arena != null) ? arena.isSpectator(player) ? getSpectatorLetter(lang) : arena.getTeam(player) == null ? "" : arena.getTeam(player).getName().substring(0,1).toUpperCase() : "";
         }
-        if (s.startsWith("players")) {
+        if (s.startsWith("players") && arena != null) {
             StringBuilder output = new StringBuilder();
             List<Player> list = new ArrayList<>(arena.getPlayers());
             if (s.equalsIgnoreCase("players_amount"))

@@ -43,6 +43,7 @@ public class TeamAssigner implements ITeamAssigner {
      * @param arena The arena to assign teams in.
      */
     public void assignTeams(IArena arena) {
+        skip.clear();
 
         // setup team up parties first
         if (arena.getPlayers().size() > arena.getMaxInTeam() && arena.getMaxInTeam() > 1) {
@@ -137,7 +138,6 @@ public class TeamAssigner implements ITeamAssigner {
 
             // Group players together if 1 player in team. Only if playerAmount > 2 and team size is not bigger than maxPlayersPerTeam
             if (numPlayers == 1 && (playerAmount > 2) && (maxPlayersPerTeam > numPlayers)){
-                BedWars.debug("found team with 1 player (" + team.getName() + ")");
                 return team;
             }
         }
