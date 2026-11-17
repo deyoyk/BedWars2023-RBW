@@ -36,11 +36,6 @@ public class HotbarPlayerManager {
         return instance;
     }
 
-    /**
-     * Create the hotbar_slot_0..8 columns on every supported backend so that
-     * getCustomStat() on join does not spam SQLExceptions before the first save.
-     * Call after the remote database has been initialized.
-     */
     public static void ensureDatabaseColumns() {
         IDatabase db = BedWars.getRemoteDatabase();
         if (db == null) return;

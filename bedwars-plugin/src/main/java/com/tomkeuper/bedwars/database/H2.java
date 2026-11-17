@@ -277,10 +277,6 @@ public class H2 implements IDatabase {
         }
     }
 
-    /**
-     * Null-safe timestamp read: rows created by saveCustomStat() may have
-     * NULL first_play/last_play values.
-     */
     private static java.time.Instant getTimestamp(ResultSet result, String column) throws SQLException {
         java.sql.Timestamp ts = result.getTimestamp(column);
         return ts == null ? null : ts.toInstant();

@@ -161,6 +161,11 @@ public class ConfigManager {
         String d = yml.getString(path);
         if (d == null) return null;
         String[] data = d.replace("[", "").replace("]", "").split(",");
+        if (data.length < 5) {
+            String[] padded = new String[]{"0", "0", "0", "0", "0"};
+            System.arraycopy(data, 0, padded, 0, Math.min(data.length, 3));
+            data = padded;
+        }
         return new Location(Bukkit.getWorld(name), Double.parseDouble(data[0]), Double.parseDouble(data[1]), Double.parseDouble(data[2]), Float.parseFloat(data[3]), Float.parseFloat(data[4]));
     }
 
