@@ -37,9 +37,6 @@ public class HotbarMenu implements Listener {
 
     private static final int RESET_SLOT = 49;
 
-    private static final int[] SELECTED_DECOR_SLOTS = {36, 37, 38, 39, 40, 41, 42, 43, 44};
-    private static final int[] TOP_DECOR_SLOTS = {9, 10, 11, 12, 13, 14, 15, 16, 17};
-
     private static final List<PaletteEntry> PALETTE = new ArrayList<>();
 
     static {
@@ -113,17 +110,10 @@ public class HotbarMenu implements Listener {
         String[] slots = HotbarPlayerManager.getInstance().get(player.getUniqueId());
 
         ItemStack pane = BedWars.nms.setTag(separator(), "hbm", "separator");
-        ItemStack greenPane = BedWars.nms.setTag(greenSeparator(), "hbm", "separator");
         for (int i = 0; i < 54; i++) inv.setItem(i, pane);
 
-        if (selected == null) {
-            for (int i : TOP_DECOR_SLOTS) inv.setItem(i, greenPane);
-        } else {
-            for (int i : SELECTED_DECOR_SLOTS) inv.setItem(i, greenPane);
-        }
-
         for (int slot = 0; slot < 9; slot++) {
-            inv.setItem(36 + slot, previewItem(player, slot, slots[slot]));
+            inv.setItem(36 + slot, previewItem(player, slot, slots[slot], selected));
         }
 
         for (PaletteEntry entry : PALETTE) {
@@ -140,17 +130,21 @@ public class HotbarMenu implements Listener {
         inv.setItem(RESET_SLOT, reset);
     }
 
-    private static ItemStack previewItem(Player player, int slot, String value) {
+    private static ItemStack previewItem(Player player, int slot, String value, String selected) {
         String[] parsed = HotbarIdentifier.parseItemPath(value);
         HotbarCategory category = parsed == null ? HotbarCategory.fromString(value) : HotbarCategory.fromString(parsed[0]);
 
         if (category == HotbarCategory.NONE) {
-            ItemStack item = BedWars.nms.setTag(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 7),
-                    "hbm", "slot-" + slot + ":none");
+            boolean clickable = selected != null;
+            ItemStack item = BedWars.nms.setTag(new ItemStack(Material.STAINED_GLASS_PANE, 1,
+                    (short) (clickable ? 5 : 7)), "hbm", "slot-" + slot + ":none");
             ItemMeta meta = item.getItemMeta();
             if (meta != null) {
-                meta.setDisplayName("§7Empty §8(" + (slot + 1) + ")");
-                meta.setLore(Arrays.asList("§7Select a palette item below,", "§7then click here to assign."));
+                meta.setDisplayName(clickable ? "§aAssign here §8(" + (slot + 1) + ")" : "§7Empty §8(" + (slot + 1) + ")");
+                meta.setLore(Arrays.asList(clickable
+                        ? "§7Click to assign §f" + PaletteEntry.byPath(selected).name
+                        : "§7Select a category above,",
+                        "§7" + (clickable ? "to this slot." : "then click here to assign.")));
                 item.setItemMeta(meta);
             }
             return item;
@@ -261,10 +255,6 @@ public class HotbarMenu implements Listener {
 
     private static ItemStack separator() {
         return new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 15);
-    }
-
-    private static ItemStack greenSeparator() {
-        return new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 5);
     }
 
     private static Material categoryDisplayMaterial(HotbarCategory category) {
