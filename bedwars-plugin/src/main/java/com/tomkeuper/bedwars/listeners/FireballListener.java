@@ -60,7 +60,7 @@ public class FireballListener implements Listener {
 
 
     private final List<String> explosionProofMaterials;
-    private final double fireballExplosionSize, fireballHorizontalSelf, fireballHorizontalOthers, fireballVerticalSelf, fireballVerticalOthers;
+    private final double fireballExplosionSize, fireballVerticalSelf, fireballVerticalOthers;
     private final double damageSelf, damageEnemy, damageTeammates;
     private final double fireballSpeedMultiplier, fireballCooldown;
     private final boolean fireballMakeFire;
@@ -70,8 +70,6 @@ public class FireballListener implements Listener {
         explosionProofMaterials = config.getList(ConfigPath.GENERAL_FIREBALL_EXPLOSION_PROOF_BLOCKS).stream().map(Object::toString).collect(Collectors.toList());
         fireballExplosionSize = config.getDouble(ConfigPath.GENERAL_FIREBALL_EXPLOSION_SIZE);
         fireballMakeFire = config.getBoolean(ConfigPath.GENERAL_FIREBALL_MAKE_FIRE);
-        fireballHorizontalSelf = config.getDouble(ConfigPath.GENERAL_FIREBALL_KNOCKBACK_HORIZONTAL_SELF) * -1;
-        fireballHorizontalOthers = config.getDouble(ConfigPath.GENERAL_FIREBALL_KNOCKBACK_HORIZONTAL_OTHERS) * -1;
         fireballVerticalSelf = config.getDouble(ConfigPath.GENERAL_FIREBALL_KNOCKBACK_VERTICAL_SELF);
         fireballVerticalOthers = config.getDouble(ConfigPath.GENERAL_FIREBALL_KNOCKBACK_VERTICAL_OTHERS);
         damageSelf = config.getDouble(ConfigPath.GENERAL_FIREBALL_DAMAGE_SELF);
@@ -154,44 +152,13 @@ public class FireballListener implements Listener {
             BedWarsTeam.reSpawnInvulnerability.remove(playerUUID);
 
             Vector playerVector = player.getLocation().toVector();
-            Vector normalizedVector = playerVector.subtract(vector).normalize();
-            Vector horizontalVector;
-            double y;
+            Vector playerEye = player.getEyeLocation().toVector();
+            boolean isSelf = player.getUniqueId().equals(source.getUniqueId());
+            double knockbackScale = (isSelf ? fireballVerticalSelf : fireballVerticalOthers) * 2.25;
 
-            if (entity.getUniqueId() == source.getUniqueId()) {
-                horizontalVector = normalizedVector.multiply(Math.abs(fireballHorizontalSelf));
-                y = normalizedVector.getY();
-
-                // FIXED: Check horizontal distance instead of just Y tolerance
-                double horizontalDistance = Math.sqrt(normalizedVector.getX() * normalizedVector.getX() +
-                        normalizedVector.getZ() * normalizedVector.getZ());
-
-                if (horizontalDistance <= config.getDouble(ConfigPath.GENERAL_FIREBALL_JUMP_TOLERANCE)) {
-                    // Mostly vertical explosion (including straight down)
-                    y = fireballVerticalSelf * 1.5;
-                } else {
-                    // Has horizontal component
-                    y = Math.abs(y) * fireballVerticalSelf * 1.5;
-                }
-            } else {
-                horizontalVector = normalizedVector.multiply(Math.abs(fireballHorizontalOthers));
-                y = normalizedVector.getY();
-
-                // FIXED: Check horizontal distance instead of just Y tolerance
-                double horizontalDistance = Math.sqrt(normalizedVector.getX() * normalizedVector.getX() +
-                        normalizedVector.getZ() * normalizedVector.getZ());
-
-                if (horizontalDistance <= config.getDouble(ConfigPath.GENERAL_FIREBALL_JUMP_TOLERANCE)) {
-                    // Mostly vertical explosion (including straight down)
-                    y = fireballVerticalOthers * 1.5;
-                } else {
-                    // Has horizontal component
-                    y = Math.abs(y) * fireballVerticalOthers * 1.5;
-                }
-            }
-
-            // FIXED: Delay velocity application for newer versions to avoid being overridden
-            final Vector finalVelocity = horizontalVector.setY(y);
+            Vector finalVelocity = FireballUtil.computeExplosionKnockback(
+                    vector, playerVector, playerEye, player.getVelocity(),
+                    fireballExplosionSize, knockbackScale, 0.5);
             final Player finalPlayer = player;
             Bukkit.getScheduler().runTask(BedWars.plugin, () -> {
                 try {

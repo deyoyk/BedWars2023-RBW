@@ -6,6 +6,8 @@ public final class FireballUtil {
 
     public static final double MAX_AIM_DISTANCE = 64.0D;
     public static final double SPAWN_OFFSET = 1.5D;
+    // Paper 1.8.8 CraftEntity#setVelocity logs "Excessive velocity set detected" above 4.0 per axis
+    public static final double MAX_VELOCITY = 4.0D;
 
     public interface SolidBlockCheck {
         boolean isSolid(int x, int y, int z);
@@ -72,8 +74,44 @@ public final class FireballUtil {
         if (spawn == null || aimPoint == null || eyeDirection == null) throw new IllegalArgumentException("null argument");
         if (speed <= 0) throw new IllegalArgumentException("speed");
         Vector toAim = aimPoint.clone().subtract(spawn);
-        if (toAim.lengthSquared() < 1.0E-4D) return eyeDirection.clone().normalize().multiply(speed);
-        return toAim.normalize().multiply(speed);
+        Vector velocity = toAim.lengthSquared() < 1.0E-4D
+                ? eyeDirection.clone().normalize()
+                : toAim.normalize();
+        velocity.multiply(speed);
+        clampToPaperLimit(velocity);
+        return velocity;
+    }
+
+    private static void clampToPaperLimit(Vector velocity) {
+        double maxAxis = Math.max(Math.abs(velocity.getX()),
+                Math.max(Math.abs(velocity.getY()), Math.abs(velocity.getZ())));
+        if (maxAxis > MAX_VELOCITY) {
+            velocity.multiply(MAX_VELOCITY / maxAxis);
+        }
+    }
+
+    /**
+     * Explosion knockback (vanilla JE model, minecraft.wiki/w/Explosion):
+     * direction = explosion center -> player eye (full 3D), magnitude = (1 - distance/range) * knockbackScale,
+     * then the player's current velocity is carried over (momentum).
+     * Range is 4x the explosion power (vanilla's 2x zeroes out on typical forward throws, which feel dead).
+     */
+    public static Vector computeExplosionKnockback(Vector explosion, Vector playerPos, Vector playerEye, Vector currentVelocity,
+                                                   double power, double knockbackScale, double momentumCarry) {
+        if (explosion == null || playerPos == null || playerEye == null) throw new IllegalArgumentException("null argument");
+        if (power <= 0) throw new IllegalArgumentException("power");
+        if (knockbackScale < 0) throw new IllegalArgumentException("knockbackScale");
+        Vector direction = playerEye.clone().subtract(explosion);
+        double distance = direction.length();
+        if (distance < 1.0E-4D) direction = new Vector(0, 1, 0);
+        double magnitude = Math.max(0, (1 - distance / (4 * power))) * knockbackScale;
+        if (magnitude <= 0) return new Vector(0, 0, 0);
+        Vector velocity = direction.normalize().multiply(magnitude);
+        if (currentVelocity != null && momentumCarry > 0) {
+            velocity.add(currentVelocity.clone().multiply(momentumCarry));
+        }
+        clampToPaperLimit(velocity);
+        return velocity;
     }
 
     private static int floor(double v) {

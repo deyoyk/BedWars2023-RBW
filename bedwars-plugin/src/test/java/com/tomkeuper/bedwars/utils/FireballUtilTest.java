@@ -120,4 +120,125 @@ public class FireballUtilTest {
         assertThrows(IllegalArgumentException.class, () -> FireballUtil.computeLaunchVelocity(v, v, null, 1));
         assertThrows(IllegalArgumentException.class, () -> FireballUtil.computeLaunchVelocity(v, v, v, 0));
     }
+
+    @Test
+    void computeLaunchVelocityClampsToPaperLimit() {
+        Vector spawn = new Vector(0, 64, 0);
+        Vector vel = FireballUtil.computeLaunchVelocity(spawn, new Vector(0, -64, 0), new Vector(0, -1, 0), 10);
+        assertEquals(4.0, Math.abs(vel.getY()), 1e-9);
+        assertEquals(0.0, vel.getX(), 1e-9);
+        assertEquals(0.0, vel.getZ(), 1e-9);
+        assertEquals(4.0, vel.length(), 1e-9);
+    }
+
+    @Test
+    void computeLaunchVelocityClampPreservesAimDirection() {
+        Vector spawn = new Vector(0, 64, 0);
+        Vector aim = new Vector(60, -16, -60);
+        Vector toAim = aim.clone().subtract(spawn);
+        Vector vel = FireballUtil.computeLaunchVelocity(spawn, aim, new Vector(0, -1, 0), 10);
+        assertEquals(4.0, Math.abs(vel.getY()), 1e-9);
+        assertEquals(vel.getX() / vel.getY(), toAim.getX() / toAim.getY(), 1e-9);
+        assertEquals(vel.getZ() / vel.getY(), toAim.getZ() / toAim.getY(), 1e-9);
+    }
+
+    @Test
+    void computeLaunchVelocityDoesNotClampLegalShots() {
+        Vector spawn = new Vector(0, 64, 0);
+        Vector vel = FireballUtil.computeLaunchVelocity(spawn, spawn.clone().add(new Vector(3.9, 3.9, 3.9)), new Vector(1, 1, 1), 4);
+        assertEquals(4.0, vel.length(), 1e-9);
+        assertEquals(4.0 / Math.sqrt(3), vel.getX(), 1e-9);
+    }
+
+    @Test
+    void computeLaunchVelocityClampsEyeDirectionFallback() {
+        Vector spawn = new Vector(5, 64, 5);
+        Vector vel = FireballUtil.computeLaunchVelocity(spawn, spawn.clone(), new Vector(0, -1, 0), 10);
+        assertEquals(4.0, vel.length(), 1e-9);
+        assertEquals(-4.0, vel.getY(), 1e-9);
+    }
+
+    @Test
+    void explosionKnockbackThrowsUpAndBackOn45DegreeDownThrow() {
+        // player at (0,64,0) fires at 45° down; blast lands ~2 blocks in front at same height as feet
+        Vector vel = FireballUtil.computeExplosionKnockback(
+                new Vector(1.5, 64.2, 0), new Vector(0, 64, 0), new Vector(0, 64.62, 0), new Vector(0, 0, 0),
+                3.0, 1.5, 0.0);
+        assertTrue(vel.getY() > 0.1, "blast in front at foot level should launch up, y=" + vel.getY());
+        assertTrue(vel.getX() < -0.1, "blast in front should push back, x=" + vel.getX());
+    }
+
+    @Test
+    void explosionKnockbackThrowsDownWhenBlastAboveHead() {
+        // fireball thrown straight up explodes above the player's head
+        Vector vel = FireballUtil.computeExplosionKnockback(
+                new Vector(0, 67.5, 0), new Vector(0, 64, 0), new Vector(0, 64.62, 0), new Vector(0, 0, 0),
+                3.0, 1.5, 0.0);
+        assertTrue(vel.getY() < -0.1, "blast above head should slam player down, y=" + vel.getY());
+    }
+
+    @Test
+    void explosionKnockbackFallsOffWithDistance() {
+        Vector close = FireballUtil.computeExplosionKnockback(
+                new Vector(2, 64, 0), new Vector(0, 64, 0), new Vector(0, 64.62, 0), new Vector(0, 0, 0),
+                3.0, 1.5, 0.0);
+        Vector far = FireballUtil.computeExplosionKnockback(
+                new Vector(8, 64, 0), new Vector(0, 64, 0), new Vector(0, 64.62, 0), new Vector(0, 0, 0),
+                3.0, 1.5, 0.0);
+        assertTrue(close.length() > far.length(), "closer blast must hit harder");
+        assertTrue(close.length() > 0);
+        assertTrue(far.length() > 0);
+    }
+
+    @Test
+    void explosionKnockbackZeroBeyondQuadruplePowerRange() {
+        // running-jump forward throws land 7-12 blocks away; must still push (was dead at 2x power)
+        Vector twelve = FireballUtil.computeExplosionKnockback(
+                new Vector(11, 64, 0), new Vector(0, 64, 0), new Vector(0, 64.62, 0), new Vector(0, 0, 0),
+                3.0, 1.5, 0.0);
+        assertTrue(twelve.length() > 0, "11-block blast must still push");
+        Vector thirteen = FireballUtil.computeExplosionKnockback(
+                new Vector(13, 64, 0), new Vector(0, 64, 0), new Vector(0, 64.62, 0), new Vector(0, 0, 0),
+                3.0, 1.5, 0.0);
+        assertEquals(0.0, thirteen.length(), 1e-9);
+    }
+
+    @Test
+    void explosionKnockbackCarriesMomentum() {
+        Vector standing = FireballUtil.computeExplosionKnockback(
+                new Vector(1.5, 64.2, 0), new Vector(0, 64, 0), new Vector(0, 64.62, 0), new Vector(0, 0, 0),
+                3.0, 1.5, 0.5);
+        Vector running = FireballUtil.computeExplosionKnockback(
+                new Vector(1.5, 64.2, 0), new Vector(0, 64, 0), new Vector(0, 64.62, 0), new Vector(0.8, 0, 0),
+                3.0, 1.5, 0.5);
+        assertTrue(running.getX() > standing.getX(), "forward sprint should add to knockback");
+    }
+
+    @Test
+    void explosionKnockbackSamePositionBlastPushesUp() {
+        Vector vel = FireballUtil.computeExplosionKnockback(
+                new Vector(0, 64, 0), new Vector(0, 64, 0), new Vector(0, 64.62, 0), new Vector(0, 0, 0),
+                3.0, 1.5, 0.0);
+        assertTrue(vel.getY() > 0, "degenerate blast at feet resolves upward, not NaN");
+        assertFalse(Double.isNaN(vel.getX()) || Double.isNaN(vel.getY()) || Double.isNaN(vel.getZ()));
+    }
+
+    @Test
+    void explosionKnockbackClampsToPaperLimit() {
+        Vector vel = FireballUtil.computeExplosionKnockback(
+                new Vector(0.1, 64.05, 0), new Vector(0, 64, 0), new Vector(0, 64.62, 0), new Vector(0, 0, 0),
+                3.0, 10.0, 0.0);
+        assertTrue(Math.abs(vel.getY()) <= 4.0, "no axis over Paper limit, y=" + vel.getY());
+        assertTrue(Math.abs(vel.getX()) <= 4.0);
+    }
+
+    @Test
+    void explosionKnockbackRejectsInvalidInput() {
+        Vector v = new Vector(1, 0, 0);
+        assertThrows(IllegalArgumentException.class, () -> FireballUtil.computeExplosionKnockback(null, v, v, v, 3, 1, 0.5));
+        assertThrows(IllegalArgumentException.class, () -> FireballUtil.computeExplosionKnockback(v, null, v, v, 3, 1, 0.5));
+        assertThrows(IllegalArgumentException.class, () -> FireballUtil.computeExplosionKnockback(v, v, null, v, 3, 1, 0.5));
+        assertThrows(IllegalArgumentException.class, () -> FireballUtil.computeExplosionKnockback(v, v, v, v, 0, 1, 0.5));
+        assertThrows(IllegalArgumentException.class, () -> FireballUtil.computeExplosionKnockback(v, v, v, v, 3, -1, 0.5));
+    }
 }
