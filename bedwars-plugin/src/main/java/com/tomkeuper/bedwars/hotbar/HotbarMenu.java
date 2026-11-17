@@ -35,57 +35,58 @@ public class HotbarMenu implements Listener {
     private static final Map<UUID, String> selection = new HashMap<>();
     private static final Map<UUID, Boolean> open = new HashMap<>();
 
-    private static final int PALETTE_START = 18;
-    private static final int INFO_SLOT = 13;
+    private static final int INFO_SLOT = 51;
     private static final int RESET_SLOT = 53;
 
     private static final List<PaletteEntry> PALETTE = new ArrayList<>();
 
     static {
-        PALETTE.add(new PaletteEntry("melee.stone-sword", "Stone Sword", Material.STONE_SWORD, (short) 0));
-        PALETTE.add(new PaletteEntry("melee.iron-sword", "Iron Sword", Material.IRON_SWORD, (short) 0));
-        PALETTE.add(new PaletteEntry("melee.diamond-sword", "Diamond Sword", Material.DIAMOND_SWORD, (short) 0));
+        PALETTE.add(new PaletteEntry(9, "melee.stone-sword", "Stone Sword", Material.STONE_SWORD, (short) 0));
+        PALETTE.add(new PaletteEntry(10, "melee.iron-sword", "Iron Sword", Material.IRON_SWORD, (short) 0));
+        PALETTE.add(new PaletteEntry(11, "melee.diamond-sword", "Diamond Sword", Material.DIAMOND_SWORD, (short) 0));
 
-        PALETTE.add(new PaletteEntry("blocks.wool", "Wool", Material.WOOL, (short) 0));
-        PALETTE.add(new PaletteEntry("blocks.clay", "Hardened Clay", Material.STAINED_CLAY, (short) 1));
-        PALETTE.add(new PaletteEntry("blocks.glass", "Glass", Material.GLASS, (short) 0));
-        PALETTE.add(new PaletteEntry("blocks.stone", "End Stone", Material.ENDER_STONE, (short) 0));
-        PALETTE.add(new PaletteEntry("blocks.ladder", "Ladder", Material.LADDER, (short) 0));
-        PALETTE.add(new PaletteEntry("blocks.wood", "Wood Planks", Material.WOOD, (short) 0));
-        PALETTE.add(new PaletteEntry("blocks.obsidian", "Obsidian", Material.OBSIDIAN, (short) 0));
+        PALETTE.add(new PaletteEntry(13, "ranged.bow1", "Bow", Material.BOW, (short) 0));
+        PALETTE.add(new PaletteEntry(14, "ranged.arrow", "Arrows", Material.ARROW, (short) 0));
 
-        PALETTE.add(new PaletteEntry("tools.pickaxe", "Pickaxe", Material.WOOD_PICKAXE, (short) 0));
-        PALETTE.add(new PaletteEntry("tools.axe", "Axe", Material.WOOD_AXE, (short) 0));
-        PALETTE.add(new PaletteEntry("tools.shears", "Shears", Material.SHEARS, (short) 0));
+        PALETTE.add(new PaletteEntry(18, "blocks.wool", "Wool", Material.WOOL, (short) 0));
+        PALETTE.add(new PaletteEntry(19, "blocks.clay", "Hardened Clay", Material.STAINED_CLAY, (short) 1));
+        PALETTE.add(new PaletteEntry(20, "blocks.glass", "Glass", Material.GLASS, (short) 0));
+        PALETTE.add(new PaletteEntry(21, "blocks.stone", "End Stone", Material.ENDER_STONE, (short) 0));
+        PALETTE.add(new PaletteEntry(22, "blocks.ladder", "Ladder", Material.LADDER, (short) 0));
+        PALETTE.add(new PaletteEntry(23, "blocks.wood", "Wood Planks", Material.WOOD, (short) 0));
+        PALETTE.add(new PaletteEntry(24, "blocks.obsidian", "Obsidian", Material.OBSIDIAN, (short) 0));
 
-        PALETTE.add(new PaletteEntry("ranged.bow1", "Bow", Material.BOW, (short) 0));
-        PALETTE.add(new PaletteEntry("ranged.arrow", "Arrows", Material.ARROW, (short) 0));
+        PALETTE.add(new PaletteEntry(27, "tools.pickaxe", "Pickaxe", Material.WOOD_PICKAXE, (short) 0));
+        PALETTE.add(new PaletteEntry(28, "tools.axe", "Axe", Material.WOOD_AXE, (short) 0));
+        PALETTE.add(new PaletteEntry(29, "tools.shears", "Shears", Material.SHEARS, (short) 0));
 
-        PALETTE.add(new PaletteEntry("potions.jump-potion", "Jump Potion", Material.POTION, (short) 11));
-        PALETTE.add(new PaletteEntry("potions.speed-potion", "Speed Potion", Material.POTION, (short) 3));
-        PALETTE.add(new PaletteEntry("potions.invisibility", "Invisibility", Material.POTION, (short) 14));
+        PALETTE.add(new PaletteEntry(31, "potions.jump-potion", "Jump Potion", Material.POTION, (short) 11));
+        PALETTE.add(new PaletteEntry(32, "potions.speed-potion", "Speed Potion", Material.POTION, (short) 3));
+        PALETTE.add(new PaletteEntry(33, "potions.invisibility", "Invisibility", Material.POTION, (short) 14));
 
-        PALETTE.add(new PaletteEntry("utility.fireball", "Fireball", Material.FIREBALL, (short) 0));
+        PALETTE.add(new PaletteEntry(36, "utility.fireball", "Fireball", Material.FIREBALL, (short) 0));
 
-        PALETTE.add(new PaletteEntry("utility.golden-apple", "Golden Apple", Material.GOLDEN_APPLE, (short) 0));
-        PALETTE.add(new PaletteEntry("utility.bedbug", "Bedbug", Material.SNOW_BALL, (short) 0));
-        PALETTE.add(new PaletteEntry("utility.dream-defender", "Dream Defender", Material.MONSTER_EGG, (short) 0));
-        PALETTE.add(new PaletteEntry("utility.tnt", "TNT", Material.TNT, (short) 0));
-        PALETTE.add(new PaletteEntry("utility.ender-pearl", "Ender Pearl", Material.ENDER_PEARL, (short) 0));
-        PALETTE.add(new PaletteEntry("utility.water-bucket", "Water Bucket", Material.WATER_BUCKET, (short) 0));
-        PALETTE.add(new PaletteEntry("utility.bridge-egg", "Bridge Egg", Material.EGG, (short) 0));
-        PALETTE.add(new PaletteEntry("utility.magic-milk", "Magic Milk", Material.MILK_BUCKET, (short) 0));
-        PALETTE.add(new PaletteEntry("utility.sponge", "Sponge", Material.SPONGE, (short) 0));
-        PALETTE.add(new PaletteEntry("utility.tower", "Pop-up Tower", Material.CHEST, (short) 0));
+        PALETTE.add(new PaletteEntry(38, "utility.golden-apple", "Golden Apple", Material.GOLDEN_APPLE, (short) 0));
+        PALETTE.add(new PaletteEntry(39, "utility.bedbug", "Bedbug", Material.SNOW_BALL, (short) 0));
+        PALETTE.add(new PaletteEntry(40, "utility.dream-defender", "Dream Defender", Material.MONSTER_EGG, (short) 0));
+        PALETTE.add(new PaletteEntry(41, "utility.tnt", "TNT", Material.TNT, (short) 0));
+        PALETTE.add(new PaletteEntry(42, "utility.ender-pearl", "Ender Pearl", Material.ENDER_PEARL, (short) 0));
+        PALETTE.add(new PaletteEntry(43, "utility.water-bucket", "Water Bucket", Material.WATER_BUCKET, (short) 0));
+        PALETTE.add(new PaletteEntry(44, "utility.bridge-egg", "Bridge Egg", Material.EGG, (short) 0));
+        PALETTE.add(new PaletteEntry(45, "utility.magic-milk", "Magic Milk", Material.MILK_BUCKET, (short) 0));
+        PALETTE.add(new PaletteEntry(46, "utility.sponge", "Sponge", Material.SPONGE, (short) 0));
+        PALETTE.add(new PaletteEntry(47, "utility.tower", "Pop-up Tower", Material.CHEST, (short) 0));
     }
 
     static final class PaletteEntry {
+        final int slot;
         final String path;
         final String name;
         final Material material;
         final short data;
 
-        PaletteEntry(String path, String name, Material material, short data) {
+        PaletteEntry(int slot, String path, String name, Material material, short data) {
+            this.slot = slot;
             this.path = path;
             this.name = name;
             this.material = material;
@@ -151,8 +152,8 @@ public class HotbarMenu implements Listener {
         }
         inv.setItem(INFO_SLOT, BedWars.nms.setTag(info, "hbm", "info"));
 
-        for (int i = 0; i < PALETTE.size(); i++) {
-            inv.setItem(PALETTE_START + i, paletteItem(player, PALETTE.get(i), selected));
+        for (PaletteEntry entry : PALETTE) {
+            inv.setItem(entry.slot, paletteItem(player, entry, selected));
         }
 
         ItemStack reset = BedWars.nms.setTag(new ItemStack(Material.TNT), "hbm", "reset");
@@ -215,7 +216,7 @@ public class HotbarMenu implements Listener {
                     color(Language.getMsg(player, "hotbar-menu-palette-lore"))));
             item.setItemMeta(meta);
         }
-        return BedWars.nms.setTag(item, "hbm", "palette-" + PALETTE.indexOf(entry));
+        return BedWars.nms.setTag(item, "hbm", "palette-" + entry.path);
     }
 
     @EventHandler
@@ -234,14 +235,8 @@ public class HotbarMenu implements Listener {
         String[] slots = HotbarPlayerManager.getInstance().get(player.getUniqueId());
 
         if (tag.startsWith("palette-")) {
-            int index;
-            try {
-                index = Integer.parseInt(tag.substring("palette-".length()));
-            } catch (NumberFormatException ex) {
-                return;
-            }
-            if (index < 0 || index >= PALETTE.size()) return;
-            String path = PALETTE.get(index).path;
+            String path = tag.substring("palette-".length());
+            if (PaletteEntry.byPath(path) == null) return;
             if (path.equals(selection.get(player.getUniqueId()))) {
                 selection.remove(player.getUniqueId());
             } else {
