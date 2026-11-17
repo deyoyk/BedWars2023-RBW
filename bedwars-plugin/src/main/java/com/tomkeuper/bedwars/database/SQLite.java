@@ -226,8 +226,8 @@ public class SQLite implements IDatabase {
                 statement.setString(1, uuid.toString());
                 try (ResultSet result = statement.executeQuery()) {
                     if (result.next()) {
-                        stats.setFirstPlay(result.getTimestamp("first_play").toInstant());
-                        stats.setLastPlay(result.getTimestamp("last_play").toInstant());
+                        stats.setFirstPlay(getTimestamp(result, "first_play"));
+                        stats.setLastPlay(getTimestamp(result, "last_play"));
                         stats.setWins(result.getInt("wins"));
                         stats.setKills(result.getInt("kills"));
                         stats.setFinalKills(result.getInt("final_kills"));
@@ -260,7 +260,7 @@ public class SQLite implements IDatabase {
                     statement.executeUpdate();
                 }
             } else {
-                sql = "INSERT INTO global_stats (uuid, "+columnName+") VALUES (?, ?);";
+                sql = "INSERT INTO global_stats (uuid, "+columnName+", first_play, last_play) VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);";
                 try (PreparedStatement statement = connection.prepareStatement(sql)) {
                     statement.setString(1, player.toString());
                     statement.setObject(2, value);
@@ -297,6 +297,15 @@ public class SQLite implements IDatabase {
         }catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Null-safe timestamp read: rows created by saveCustomStat() may have
+     * NULL first_play/last_play values.
+     */
+    private static java.time.Instant getTimestamp(ResultSet result, String column) throws SQLException {
+        java.sql.Timestamp ts = result.getTimestamp(column);
+        return ts == null ? null : ts.toInstant();
     }
 
     @Override

@@ -305,7 +305,7 @@ public class MySQL implements IDatabase {
                     statement.executeUpdate();
                 }
             } else {
-                sql = "INSERT INTO global_stats (uuid, "+columnName+") VALUES (?, ?);";
+                sql = "INSERT INTO global_stats (uuid, "+columnName+", first_play, last_play) VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);";
                 try (PreparedStatement statement = connection.prepareStatement(sql)) {
                     statement.setString(1, player.toString());
                     statement.setObject(2, value);
