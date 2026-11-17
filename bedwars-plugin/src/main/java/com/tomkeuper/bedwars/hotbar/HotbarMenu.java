@@ -41,54 +41,28 @@ public class HotbarMenu implements Listener {
     private static final List<PaletteEntry> PALETTE = new ArrayList<>();
 
     static {
-        PALETTE.add(new PaletteEntry(9, "melee.stone-sword", "Stone Sword", Material.STONE_SWORD, (short) 0));
-        PALETTE.add(new PaletteEntry(10, "melee.iron-sword", "Iron Sword", Material.IRON_SWORD, (short) 0));
-        PALETTE.add(new PaletteEntry(11, "melee.diamond-sword", "Diamond Sword", Material.DIAMOND_SWORD, (short) 0));
-
-        PALETTE.add(new PaletteEntry(13, "ranged.bow1", "Bow", Material.BOW, (short) 0));
-        PALETTE.add(new PaletteEntry(14, "ranged.arrow", "Arrows", Material.ARROW, (short) 0));
-
-        PALETTE.add(new PaletteEntry(18, "blocks.wool", "Wool", Material.WOOL, (short) 0));
-        PALETTE.add(new PaletteEntry(19, "blocks.clay", "Hardened Clay", Material.STAINED_CLAY, (short) 1));
-        PALETTE.add(new PaletteEntry(20, "blocks.glass", "Glass", Material.GLASS, (short) 0));
-        PALETTE.add(new PaletteEntry(21, "blocks.stone", "End Stone", Material.ENDER_STONE, (short) 0));
-        PALETTE.add(new PaletteEntry(22, "blocks.ladder", "Ladder", Material.LADDER, (short) 0));
-        PALETTE.add(new PaletteEntry(23, "blocks.wood", "Wood Planks", Material.WOOD, (short) 0));
-        PALETTE.add(new PaletteEntry(24, "blocks.obsidian", "Obsidian", Material.OBSIDIAN, (short) 0));
-
-        PALETTE.add(new PaletteEntry(27, "tools.pickaxe", "Pickaxe", Material.WOOD_PICKAXE, (short) 0));
-        PALETTE.add(new PaletteEntry(28, "tools.axe", "Axe", Material.WOOD_AXE, (short) 0));
-        PALETTE.add(new PaletteEntry(29, "tools.shears", "Shears", Material.SHEARS, (short) 0));
-
-        PALETTE.add(new PaletteEntry(31, "potions.jump-potion", "Jump Potion", Material.POTION, (short) 11));
-        PALETTE.add(new PaletteEntry(32, "potions.speed-potion", "Speed Potion", Material.POTION, (short) 3));
-        PALETTE.add(new PaletteEntry(33, "potions.invisibility", "Invisibility", Material.POTION, (short) 14));
-
-        PALETTE.add(new PaletteEntry(36, "utility.fireball", "Fireball", Material.FIREBALL, (short) 0));
-
-        PALETTE.add(new PaletteEntry(38, "utility.golden-apple", "Golden Apple", Material.GOLDEN_APPLE, (short) 0));
-        PALETTE.add(new PaletteEntry(39, "utility.bedbug", "Bedbug", Material.SNOW_BALL, (short) 0));
-        PALETTE.add(new PaletteEntry(40, "utility.dream-defender", "Dream Defender", Material.MONSTER_EGG, (short) 0));
-        PALETTE.add(new PaletteEntry(41, "utility.tnt", "TNT", Material.TNT, (short) 0));
-        PALETTE.add(new PaletteEntry(42, "utility.ender-pearl", "Ender Pearl", Material.ENDER_PEARL, (short) 0));
-        PALETTE.add(new PaletteEntry(43, "utility.water-bucket", "Water Bucket", Material.WATER_BUCKET, (short) 0));
-        PALETTE.add(new PaletteEntry(44, "utility.bridge-egg", "Bridge Egg", Material.EGG, (short) 0));
-        PALETTE.add(new PaletteEntry(45, "utility.magic-milk", "Magic Milk", Material.MILK_BUCKET, (short) 0));
-        PALETTE.add(new PaletteEntry(46, "utility.sponge", "Sponge", Material.SPONGE, (short) 0));
-        PALETTE.add(new PaletteEntry(47, "utility.tower", "Pop-up Tower", Material.CHEST, (short) 0));
+        PALETTE.add(new PaletteEntry(19, "melee", "Melee Swords", "§cMelee", Material.IRON_SWORD, (short) 0));
+        PALETTE.add(new PaletteEntry(20, "blocks", "Blocks", "§eBlocks", Material.WOOL, (short) 0));
+        PALETTE.add(new PaletteEntry(21, "tools", "Tools", "§6Tools", Material.STONE_PICKAXE, (short) 0));
+        PALETTE.add(new PaletteEntry(22, "ranged", "Bow & Arrows", "§9Ranged", Material.BOW, (short) 0));
+        PALETTE.add(new PaletteEntry(23, "potions", "Potions", "§dPotions", Material.POTION, (short) 3));
+        PALETTE.add(new PaletteEntry(24, "utility.fireball", "Fireball", "§aUtility", Material.FIREBALL, (short) 0));
+        PALETTE.add(new PaletteEntry(25, "utility", "Utility", "§aUtility", Material.TNT, (short) 0));
     }
 
     static final class PaletteEntry {
         final int slot;
         final String path;
         final String name;
+        final String categoryColor;
         final Material material;
         final short data;
 
-        PaletteEntry(int slot, String path, String name, Material material, short data) {
+        PaletteEntry(int slot, String path, String name, String categoryColor, Material material, short data) {
             this.slot = slot;
             this.path = path;
             this.name = name;
+            this.categoryColor = categoryColor;
             this.material = material;
             this.data = data;
         }
@@ -185,13 +159,11 @@ public class HotbarMenu implements Listener {
         String displayName = colorName(player, category);
         Material material = categoryDisplayMaterial(category);
         short data = 0;
-        if (parsed != null) {
-            PaletteEntry entry = PaletteEntry.byPath(value);
-            if (entry != null) {
-                displayName = entry.name;
-                material = entry.material;
-                data = entry.data;
-            }
+        PaletteEntry entry = PaletteEntry.byPath(value);
+        if (entry != null) {
+            displayName = entry.name;
+            material = entry.material;
+            data = entry.data;
         }
 
         ItemStack item = new ItemStack(material, 1, data);
@@ -211,7 +183,7 @@ public class HotbarMenu implements Listener {
         if (meta != null) {
             meta.setDisplayName("§f" + entry.name + (isSelected ? " §a✔" : ""));
             meta.setLore(Arrays.asList(
-                    colorName(player, HotbarCategory.fromString(entry.path.substring(0, entry.path.indexOf('.')))),
+                    entry.categoryColor,
                     "",
                     color(Language.getMsg(player, "hotbar-menu-palette-lore"))));
             item.setItemMeta(meta);
