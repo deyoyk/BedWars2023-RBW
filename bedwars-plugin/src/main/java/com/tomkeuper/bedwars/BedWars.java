@@ -338,6 +338,8 @@ public class BedWars extends JavaPlugin {
         com.tomkeuper.bedwars.spectate.CmdSpec.initDefaults();
         registerEvents(new com.tomkeuper.bedwars.compass.CompassListener());
         registerEvents(new com.tomkeuper.bedwars.arena.ArenaStartMessageListener());
+        com.tomkeuper.bedwars.listeners.HeightLimitListener.initDefaults();
+        registerEvents(new com.tomkeuper.bedwars.listeners.HeightLimitListener());
 
         /* Hotbar layout module */
         hotbarPlayerManager = new HotbarPlayerManager();
