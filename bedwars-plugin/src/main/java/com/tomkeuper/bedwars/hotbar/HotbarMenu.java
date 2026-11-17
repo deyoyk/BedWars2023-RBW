@@ -104,7 +104,7 @@ public class HotbarMenu implements Listener {
 
     public static void initDefaults() {
         for (Language l : Language.getLanguages()) {
-            if (!l.exists(TITLE_PATH)) l.set(TITLE_PATH, "&8Hotbar Editor");
+            if (!l.exists(TITLE_PATH) || "&8Hotbar Layout".equals(l.getString(TITLE_PATH))) l.set(TITLE_PATH, "&8Hotbar Editor");
             if (!l.exists("hotbar-menu-info-name")) l.set("hotbar-menu-info-name", "&6Hotbar Editor");
             if (!l.exists("hotbar-menu-info-lore")) l.set("hotbar-menu-info-lore",
                     "&7Click a palette item below, then click a hotbar slot to assign it. Right-click a slot to clear it.");
