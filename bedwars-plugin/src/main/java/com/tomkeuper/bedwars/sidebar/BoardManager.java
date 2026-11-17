@@ -403,7 +403,9 @@ public class BoardManager implements IScoreboardService {
 
             if (scoreboardName != null) {
                 Scoreboard scoreboard = scoreboardManager.getRegisteredScoreboards().get(scoreboardName);
-                scoreboardManager.showScoreboard(tabPlayer, scoreboard);
+                if (scoreboard != null && tabPlayer.isLoaded()) {
+                    scoreboardManager.showScoreboard(tabPlayer, scoreboard);
+                }
             }
 
             setHeaderFooter(tabPlayer, arena);

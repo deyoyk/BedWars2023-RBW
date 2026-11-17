@@ -1,6 +1,10 @@
 package com.tomkeuper.bedwars.hotbar;
 
 import com.tomkeuper.bedwars.BedWars;
+import com.tomkeuper.bedwars.database.H2;
+import com.tomkeuper.bedwars.database.MySQL;
+import com.tomkeuper.bedwars.database.SQLite;
+import com.tomkeuper.bedwars.api.database.IDatabase;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -30,6 +34,23 @@ public class HotbarPlayerManager {
 
     public static HotbarPlayerManager getInstance() {
         return instance;
+    }
+
+    /**
+     * Create the hotbar_slot_0..8 columns on every supported backend so that
+     * getCustomStat() on join does not spam SQLExceptions before the first save.
+     * Call after the remote database has been initialized.
+     */
+    public static void ensureDatabaseColumns() {
+        IDatabase db = BedWars.getRemoteDatabase();
+        if (db == null) return;
+        if (db instanceof SQLite) {
+            for (int i = 0; i < 9; i++) ((SQLite) db).checkCustomColumnExists(COLUMN_PREFIX + i, COLUMN_TYPE);
+        } else if (db instanceof MySQL) {
+            for (int i = 0; i < 9; i++) ((MySQL) db).checkCustomColumnExists(COLUMN_PREFIX + i, COLUMN_TYPE);
+        } else if (db instanceof H2) {
+            for (int i = 0; i < 9; i++) ((H2) db).checkCustomColumnExists(COLUMN_PREFIX + i, COLUMN_TYPE);
+        }
     }
 
     public void load(Player player) {

@@ -428,6 +428,9 @@ public class BedWars extends JavaPlugin {
             remoteDatabase.init();
         }
 
+        /* Ensure hotbar layout columns exist before any player joins (fixes "no such column" spam) */
+        HotbarPlayerManager.ensureDatabaseColumns();
+
         /* Save messages for stats gui items if custom items added, for each language */
         Language.setupCustomStatsMessages();
 
