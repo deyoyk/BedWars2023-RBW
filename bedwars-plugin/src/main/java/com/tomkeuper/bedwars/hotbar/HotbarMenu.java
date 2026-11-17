@@ -11,38 +11,104 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 /**
- * 54-slot menu to customize which hotbar slot each shop item category is
- * placed in. Top area: category pick items (click to select). Bottom row
- * (45-53): the 9 hotbar slots (click while a category is selected to assign,
- * or click to clear). Raw slots are tagged with NBT to stay click-safe.
+ * Hypixel-style hotbar editor: the top row shows the 9 hotbar slots, the rows
+ * below are a per-item palette. Click a palette item to select it, then click
+ * any number of hotbar slots to assign that item to them. Right-click a slot
+ * to clear it.
  */
 public class HotbarMenu implements Listener {
 
     public static final String TITLE_PATH = "hotbar-menu-inventory-name";
 
-    private static final Map<UUID, HotbarCategory> selection = new HashMap<>();
+    private static final Map<UUID, String> selection = new HashMap<>();
     private static final Map<UUID, Boolean> open = new HashMap<>();
 
-    private static final int[] CATEGORY_SLOTS = {10, 11, 12, 14, 15, 16};
+    private static final int PALETTE_START = 18;
+    private static final int INFO_SLOT = 13;
+    private static final int RESET_SLOT = 53;
+
+    private static final List<PaletteEntry> PALETTE = new ArrayList<>();
+
+    static {
+        PALETTE.add(new PaletteEntry("melee.stone-sword", "Stone Sword", Material.STONE_SWORD, (short) 0));
+        PALETTE.add(new PaletteEntry("melee.iron-sword", "Iron Sword", Material.IRON_SWORD, (short) 0));
+        PALETTE.add(new PaletteEntry("melee.diamond-sword", "Diamond Sword", Material.DIAMOND_SWORD, (short) 0));
+
+        PALETTE.add(new PaletteEntry("blocks.wool", "Wool", Material.WOOL, (short) 0));
+        PALETTE.add(new PaletteEntry("blocks.clay", "Hardened Clay", Material.STAINED_CLAY, (short) 1));
+        PALETTE.add(new PaletteEntry("blocks.glass", "Glass", Material.GLASS, (short) 0));
+        PALETTE.add(new PaletteEntry("blocks.stone", "End Stone", Material.ENDER_STONE, (short) 0));
+        PALETTE.add(new PaletteEntry("blocks.ladder", "Ladder", Material.LADDER, (short) 0));
+        PALETTE.add(new PaletteEntry("blocks.wood", "Wood Planks", Material.WOOD, (short) 0));
+        PALETTE.add(new PaletteEntry("blocks.obsidian", "Obsidian", Material.OBSIDIAN, (short) 0));
+
+        PALETTE.add(new PaletteEntry("tools.pickaxe", "Pickaxe", Material.WOOD_PICKAXE, (short) 0));
+        PALETTE.add(new PaletteEntry("tools.axe", "Axe", Material.WOOD_AXE, (short) 0));
+        PALETTE.add(new PaletteEntry("tools.shears", "Shears", Material.SHEARS, (short) 0));
+
+        PALETTE.add(new PaletteEntry("ranged.bow1", "Bow", Material.BOW, (short) 0));
+        PALETTE.add(new PaletteEntry("ranged.arrow", "Arrows", Material.ARROW, (short) 0));
+
+        PALETTE.add(new PaletteEntry("potions.jump-potion", "Jump Potion", Material.POTION, (short) 11));
+        PALETTE.add(new PaletteEntry("potions.speed-potion", "Speed Potion", Material.POTION, (short) 3));
+        PALETTE.add(new PaletteEntry("potions.invisibility", "Invisibility", Material.POTION, (short) 14));
+
+        PALETTE.add(new PaletteEntry("utility.fireball", "Fireball", Material.FIREBALL, (short) 0));
+
+        PALETTE.add(new PaletteEntry("utility.golden-apple", "Golden Apple", Material.GOLDEN_APPLE, (short) 0));
+        PALETTE.add(new PaletteEntry("utility.bedbug", "Bedbug", Material.SNOW_BALL, (short) 0));
+        PALETTE.add(new PaletteEntry("utility.dream-defender", "Dream Defender", Material.MONSTER_EGG, (short) 0));
+        PALETTE.add(new PaletteEntry("utility.tnt", "TNT", Material.TNT, (short) 0));
+        PALETTE.add(new PaletteEntry("utility.ender-pearl", "Ender Pearl", Material.ENDER_PEARL, (short) 0));
+        PALETTE.add(new PaletteEntry("utility.water-bucket", "Water Bucket", Material.WATER_BUCKET, (short) 0));
+        PALETTE.add(new PaletteEntry("utility.bridge-egg", "Bridge Egg", Material.EGG, (short) 0));
+        PALETTE.add(new PaletteEntry("utility.magic-milk", "Magic Milk", Material.MILK_BUCKET, (short) 0));
+        PALETTE.add(new PaletteEntry("utility.sponge", "Sponge", Material.SPONGE, (short) 0));
+        PALETTE.add(new PaletteEntry("utility.tower", "Pop-up Tower", Material.CHEST, (short) 0));
+    }
+
+    static final class PaletteEntry {
+        final String path;
+        final String name;
+        final Material material;
+        final short data;
+
+        PaletteEntry(String path, String name, Material material, short data) {
+            this.path = path;
+            this.name = name;
+            this.material = material;
+            this.data = data;
+        }
+
+        static PaletteEntry byPath(String path) {
+            if (path == null) return null;
+            for (PaletteEntry entry : PALETTE) {
+                if (entry.path.equals(path)) return entry;
+            }
+            return null;
+        }
+    }
 
     public static void initDefaults() {
-        for (com.tomkeuper.bedwars.api.language.Language l : com.tomkeuper.bedwars.api.language.Language.getLanguages()) {
-            if (!l.exists(TITLE_PATH)) l.set(TITLE_PATH, "&8Hotbar Layout");
-            if (!l.exists("hotbar-menu-category-lore")) l.set("hotbar-menu-category-lore", "&7Click to select, then click a hotbar slot below.");
-            if (!l.exists("hotbar-menu-slot-used-lore")) l.set("hotbar-menu-slot-used-lore", "&7Click to clear this slot.");
-            if (!l.exists("hotbar-menu-slot-empty-lore")) l.set("hotbar-menu-slot-empty-lore", "&7Select a category above, then click here.");
+        for (Language l : Language.getLanguages()) {
+            if (!l.exists(TITLE_PATH)) l.set(TITLE_PATH, "&8Hotbar Editor");
+            if (!l.exists("hotbar-menu-info-name")) l.set("hotbar-menu-info-name", "&6Hotbar Editor");
+            if (!l.exists("hotbar-menu-info-lore")) l.set("hotbar-menu-info-lore",
+                    "&7Click a palette item below, then click a hotbar slot to assign it. Right-click a slot to clear it.");
+            if (!l.exists("hotbar-menu-palette-lore")) l.set("hotbar-menu-palette-lore",
+                    "&7Click to select, then click a hotbar slot above.");
             if (!l.exists("hotbar-menu-reset-name")) l.set("hotbar-menu-reset-name", "&cReset Layout");
             if (!l.exists("hotbar-menu-reset-lore")) l.set("hotbar-menu-reset-lore", "&7Clears every hotbar slot.");
         }
@@ -61,74 +127,95 @@ public class HotbarMenu implements Listener {
 
     public static String title(Player player) {
         String msg = Language.getMsg(player, TITLE_PATH);
-        if (msg == null || msg.isEmpty() || msg.equals(TITLE_PATH)) msg = "§8Hotbar Layout";
+        if (msg == null || msg.isEmpty() || msg.equals(TITLE_PATH)) msg = "§8Hotbar Editor";
         return ChatColor.translateAlternateColorCodes('&', msg);
     }
 
     private static void render(Player player, Inventory inv) {
-        HotbarCategory selected = selection.get(player.getUniqueId());
+        String selected = selection.get(player.getUniqueId());
         String[] slots = HotbarPlayerManager.getInstance().get(player.getUniqueId());
 
-        for (int i = 0; i < 9; i++) inv.setItem(i, BedWars.nms.setTag(separator(), "hbm", "separator"));
-        for (int i = 9; i < 17; i++) inv.setItem(i, BedWars.nms.setTag(separator(), "hbm", "separator"));
-        for (int i = 18; i < 45; i++) inv.setItem(i, BedWars.nms.setTag(separator(), "hbm", "separator"));
+        ItemStack pane = BedWars.nms.setTag(separator(), "hbm", "separator");
+        for (int i = 0; i < 54; i++) inv.setItem(i, pane);
 
-        HotbarCategory[] categories = HotbarCategory.ASSIGNABLE;
-        for (int c = 0; c < categories.length; c++) {
-            HotbarCategory category = categories[c];
-            boolean isSelected = category == selected;
-            ItemStack item = new ItemStack(categoryDisplayMaterial(category), 1, categoryDisplayData(category));
-            ItemMeta meta = item.getItemMeta();
-            if (meta != null) {
-                meta.setDisplayName(colorName(player, category)
-                        + (isSelected ? " §a✔" : ""));
-                List<String> lore = new ArrayList<>();
-                lore.add(Language.getMsg(player, "hotbar-menu-category-lore"));
-                item.setItemMeta(meta);
-            }
-            item = BedWars.nms.setTag(item, "hbm", "category-" + category.name().toLowerCase());
-            inv.setItem(CATEGORY_SLOTS[c], item);
+        for (int slot = 0; slot < 9; slot++) {
+            inv.setItem(slot, previewItem(player, slot, slots[slot]));
         }
 
-        // hotbar row 45-53
-        for (int slot = 0; slot < 9; slot++) {
-            int invSlot = 45 + slot;
-            String value = slots[slot] == null ? "none" : slots[slot];
-            ItemStack item;
-            String[] parsed = HotbarIdentifier.parseItemPath(value);
-            HotbarCategory category = parsed == null ? HotbarCategory.fromString(value) : HotbarCategory.fromString(parsed[0]);
-            if (category != HotbarCategory.NONE) {
-                item = new ItemStack(categoryDisplayMaterial(category), 1, categoryDisplayData(category));
-                ItemMeta meta = item.getItemMeta();
-                if (meta != null) {
-                    meta.setDisplayName(colorName(player, category));
-                    meta.setLore(java.util.Collections.singletonList(Language.getMsg(player, "hotbar-menu-slot-used-lore")));
-                    item.setItemMeta(meta);
-                }
-                String tag = parsed == null
-                        ? "slot-" + slot + ":" + category.name().toLowerCase()
-                        : "slot-" + slot + ":" + value;
-                item = BedWars.nms.setTag(item, "hbm", tag);
-            } else {
-                item = BedWars.nms.setTag(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 7), "hbm", "slot-" + slot + ":none");
-                ItemMeta meta = item.getItemMeta();
-                if (meta != null) {
-                    meta.setDisplayName("§7Empty §8(" + (slot + 1) + ")");
-                    meta.setLore(java.util.Collections.singletonList(Language.getMsg(player, "hotbar-menu-slot-empty-lore")));
-                    item.setItemMeta(meta);
-                }
-            }
-            inv.setItem(invSlot, item);
+        ItemStack info = new ItemStack(Material.BOOK);
+        ItemMeta infoMeta = info.getItemMeta();
+        if (infoMeta != null) {
+            infoMeta.setDisplayName(color(Language.getMsg(player, "hotbar-menu-info-name")));
+            infoMeta.setLore(Collections.singletonList(color(Language.getMsg(player, "hotbar-menu-info-lore"))));
+            info.setItemMeta(infoMeta);
+        }
+        inv.setItem(INFO_SLOT, BedWars.nms.setTag(info, "hbm", "info"));
+
+        for (int i = 0; i < PALETTE.size(); i++) {
+            inv.setItem(PALETTE_START + i, paletteItem(player, PALETTE.get(i), selected));
         }
 
         ItemStack reset = BedWars.nms.setTag(new ItemStack(Material.TNT), "hbm", "reset");
         ItemMeta resetMeta = reset.getItemMeta();
         if (resetMeta != null) {
-            resetMeta.setDisplayName(Language.getMsg(player, "hotbar-menu-reset-name"));
-            resetMeta.setLore(java.util.Collections.singletonList(Language.getMsg(player, "hotbar-menu-reset-lore")));
+            resetMeta.setDisplayName(color(Language.getMsg(player, "hotbar-menu-reset-name")));
+            resetMeta.setLore(Collections.singletonList(color(Language.getMsg(player, "hotbar-menu-reset-lore"))));
             reset.setItemMeta(resetMeta);
         }
-        inv.setItem(40, reset);
+        inv.setItem(RESET_SLOT, reset);
+    }
+
+    private static ItemStack previewItem(Player player, int slot, String value) {
+        String[] parsed = HotbarIdentifier.parseItemPath(value);
+        HotbarCategory category = parsed == null ? HotbarCategory.fromString(value) : HotbarCategory.fromString(parsed[0]);
+
+        if (category == HotbarCategory.NONE) {
+            ItemStack item = BedWars.nms.setTag(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 7),
+                    "hbm", "slot-" + slot + ":none");
+            ItemMeta meta = item.getItemMeta();
+            if (meta != null) {
+                meta.setDisplayName("§7Empty §8(" + (slot + 1) + ")");
+                meta.setLore(Arrays.asList("§7Select a palette item below,", "§7then click here to assign."));
+                item.setItemMeta(meta);
+            }
+            return item;
+        }
+
+        String displayName = colorName(player, category);
+        Material material = categoryDisplayMaterial(category);
+        short data = 0;
+        if (parsed != null) {
+            PaletteEntry entry = PaletteEntry.byPath(value);
+            if (entry != null) {
+                displayName = entry.name;
+                material = entry.material;
+                data = entry.data;
+            }
+        }
+
+        ItemStack item = new ItemStack(material, 1, data);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName("§f" + displayName);
+            meta.setLore(Arrays.asList("§7Slot " + (slot + 1), "", "§7Right-click to clear."));
+            item.setItemMeta(meta);
+        }
+        return BedWars.nms.setTag(item, "hbm", "slot-" + slot + ":" + value);
+    }
+
+    private static ItemStack paletteItem(Player player, PaletteEntry entry, String selected) {
+        boolean isSelected = entry.path.equals(selected);
+        ItemStack item = new ItemStack(entry.material, 1, entry.data);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName("§f" + entry.name + (isSelected ? " §a✔" : ""));
+            meta.setLore(Arrays.asList(
+                    colorName(player, HotbarCategory.fromString(entry.path.substring(0, entry.path.indexOf('.')))),
+                    "",
+                    color(Language.getMsg(player, "hotbar-menu-palette-lore"))));
+            item.setItemMeta(meta);
+        }
+        return BedWars.nms.setTag(item, "hbm", "palette-" + PALETTE.indexOf(entry));
     }
 
     @EventHandler
@@ -146,14 +233,19 @@ public class HotbarMenu implements Listener {
 
         String[] slots = HotbarPlayerManager.getInstance().get(player.getUniqueId());
 
-        if (tag.startsWith("category-")) {
-            String name = tag.substring("category-".length()).toUpperCase();
-            HotbarCategory category = HotbarCategory.fromString(name);
-            if (category == HotbarCategory.NONE) return;
-            if (selection.get(player.getUniqueId()) == category) {
+        if (tag.startsWith("palette-")) {
+            int index;
+            try {
+                index = Integer.parseInt(tag.substring("palette-".length()));
+            } catch (NumberFormatException ex) {
+                return;
+            }
+            if (index < 0 || index >= PALETTE.size()) return;
+            String path = PALETTE.get(index).path;
+            if (path.equals(selection.get(player.getUniqueId()))) {
                 selection.remove(player.getUniqueId());
             } else {
-                selection.put(player.getUniqueId(), category);
+                selection.put(player.getUniqueId(), path);
             }
             render(player, e.getInventory());
             return;
@@ -169,19 +261,9 @@ public class HotbarMenu implements Listener {
             }
             if (slot < 0 || slot > 8) return;
 
-            HotbarCategory selected = selection.get(player.getUniqueId());
-            if (selected != null) {
-                // clear any other slot bound to this category (category or any of its items)
-                for (int i = 0; i < 9; i++) {
-                    if (i == slot) continue;
-                    String other = slots[i] == null ? "none" : slots[i];
-                    HotbarCategory otherCategory = HotbarIdentifier.parseItemPath(other) == null
-                            ? HotbarCategory.fromString(other)
-                            : HotbarCategory.fromString(HotbarIdentifier.parseItemPath(other)[0]);
-                    if (otherCategory == selected) slots[i] = null;
-                }
-                slots[slot] = selected.name().toLowerCase();
-                selection.remove(player.getUniqueId());
+            String selected = selection.get(player.getUniqueId());
+            if (selected != null && !e.isRightClick()) {
+                slots[slot] = selected;
             } else {
                 slots[slot] = null;
             }
@@ -226,10 +308,6 @@ public class HotbarMenu implements Listener {
         }
     }
 
-    private static short categoryDisplayData(HotbarCategory category) {
-        return 0;
-    }
-
     private static String colorName(Player player, HotbarCategory category) {
         switch (category) {
             case BLOCKS: return "§eBlocks";
@@ -240,5 +318,9 @@ public class HotbarMenu implements Listener {
             case UTILITY: return "§aUtility";
             default: return "§7None";
         }
+    }
+
+    private static String color(String msg) {
+        return ChatColor.translateAlternateColorCodes('&', msg);
     }
 }

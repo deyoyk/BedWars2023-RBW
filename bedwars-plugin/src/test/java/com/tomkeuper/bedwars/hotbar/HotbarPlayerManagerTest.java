@@ -68,4 +68,37 @@ class HotbarPlayerManagerTest {
         assertEquals("melee.iron-sword", slots.get(8));
         assertTrue(slots.size() == 9);
     }
+
+    @Test
+    void sameItemPathCanBeAssignedToMultipleSlots() {
+        HotbarPlayerManager manager = new HotbarPlayerManager();
+        UUID uuid = UUID.randomUUID();
+        manager.setSlot(uuid, 0, "blocks.wool");
+        manager.setSlot(uuid, 3, "blocks.wool");
+        manager.setSlot(uuid, 7, "blocks.wool");
+        assertEquals("blocks.wool", manager.getSlot(uuid, 0));
+        assertEquals("blocks.wool", manager.getSlot(uuid, 3));
+        assertEquals("blocks.wool", manager.getSlot(uuid, 7));
+    }
+
+    @Test
+    void differentItemsCanShareCategorySlots() {
+        HotbarPlayerManager manager = new HotbarPlayerManager();
+        UUID uuid = UUID.randomUUID();
+        manager.setSlot(uuid, 0, "melee.stone-sword");
+        manager.setSlot(uuid, 1, "melee.iron-sword");
+        manager.setSlot(uuid, 2, "melee.diamond-sword");
+        assertEquals("melee.stone-sword", manager.getSlot(uuid, 0));
+        assertEquals("melee.iron-sword", manager.getSlot(uuid, 1));
+        assertEquals("melee.diamond-sword", manager.getSlot(uuid, 2));
+    }
+
+    @Test
+    void overwritingSlotReplacesPreviousAssignment() {
+        HotbarPlayerManager manager = new HotbarPlayerManager();
+        UUID uuid = UUID.randomUUID();
+        manager.setSlot(uuid, 4, "blocks.wool");
+        manager.setSlot(uuid, 4, "utility.fireball");
+        assertEquals("utility.fireball", manager.getSlot(uuid, 4));
+    }
 }

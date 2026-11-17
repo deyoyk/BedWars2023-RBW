@@ -37,6 +37,7 @@ import com.tomkeuper.bedwars.api.hologram.containers.IHologram;
 import com.tomkeuper.bedwars.api.language.Language;
 import com.tomkeuper.bedwars.api.language.Messages;
 import com.tomkeuper.bedwars.api.region.Cuboid;
+import com.tomkeuper.bedwars.hotbar.HotbarPlacement;
 import com.tomkeuper.bedwars.api.upgrades.EnemyBaseEnterTrap;
 import com.tomkeuper.bedwars.arena.Arena;
 import com.tomkeuper.bedwars.arena.OreGenerator;
@@ -284,6 +285,7 @@ public class BedWarsTeam implements ITeam {
                         }
                         if (!hasSword) {
                             p.getInventory().addItem(i);
+                            HotbarPlacement.placeDefaultItem(p, i);
                         }
                     } else if (BedWars.nms.isBow(i)) {
                         boolean hasBow = false;
@@ -297,9 +299,11 @@ public class BedWarsTeam implements ITeam {
                         }
                         if (!hasBow) {
                             p.getInventory().addItem(i);
+                            HotbarPlacement.placeDefaultItem(p, i);
                         }
                     } else {
                         p.getInventory().addItem(i);
+                        HotbarPlacement.placeDefaultItem(p, i);
                     }
                 } catch (Exception ignored) {
                 }
@@ -351,6 +355,7 @@ public class BedWarsTeam implements ITeam {
 
                     if (BedWars.nms.isSword(i)) {
                         p.getInventory().addItem(i);
+                        HotbarPlacement.placeDefaultItem(p, i);
                         break;
                     }
                 } catch (Exception ignored) {

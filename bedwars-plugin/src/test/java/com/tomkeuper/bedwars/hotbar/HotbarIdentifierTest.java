@@ -88,4 +88,33 @@ class HotbarIdentifierTest {
         assertEquals(6, HotbarCategory.ASSIGNABLE.length);
         assertTrue(HotbarCategory.ASSIGNABLE[0] == HotbarCategory.BLOCKS);
     }
+
+    @Test
+    void itemPathParsesAllPalettePaths() {
+        String[] paths = {
+                "melee.stone-sword", "melee.iron-sword", "melee.diamond-sword",
+                "blocks.wool", "blocks.clay", "blocks.glass", "blocks.stone",
+                "blocks.ladder", "blocks.wood", "blocks.obsidian",
+                "tools.pickaxe", "tools.axe", "tools.shears",
+                "ranged.bow1", "ranged.arrow",
+                "potions.jump-potion", "potions.speed-potion", "potions.invisibility",
+                "utility.fireball", "utility.golden-apple", "utility.bedbug",
+                "utility.dream-defender", "utility.tnt", "utility.ender-pearl",
+                "utility.water-bucket", "utility.bridge-egg", "utility.magic-milk",
+                "utility.sponge", "utility.tower"
+        };
+        for (String path : paths) {
+            String[] parsed = HotbarIdentifier.parseItemPath(path);
+            assertTrue(parsed != null, "path should parse: " + path);
+            assertEquals(path.split("\\.", 2)[0], parsed[0]);
+            assertEquals(path.split("\\.", 2)[1], parsed[1]);
+        }
+    }
+
+    @Test
+    void categoryNamesFromPalettePathsMatchShopCategories() {
+        for (String category : new String[]{"blocks", "melee", "tools", "ranged", "potions", "utility"}) {
+            assertEquals(HotbarCategory.fromString(category).shopCategoryKey(), category + "-category");
+        }
+    }
 }

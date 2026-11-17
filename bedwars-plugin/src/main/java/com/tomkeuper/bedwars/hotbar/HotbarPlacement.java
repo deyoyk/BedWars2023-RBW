@@ -102,7 +102,61 @@ public final class HotbarPlacement {
         inv.setItem(target, stack);
         player.updateInventory();
 
-        // push the replaced item back into storage (fills the just-cleared slot first)
+        if (targetOld != null && targetOld.getType() != Material.AIR) {
+            inv.addItem(targetOld);
+            player.updateInventory();
+        }
+    }
+
+    public static void placeDefaultItem(Player player, ItemStack item) {
+        if (player == null || item == null) return;
+        if (item.getType() == Material.AIR) return;
+
+        HotbarCategory category = null;
+        if (BedWars.nms.isSword(item)) category = HotbarCategory.MELEE;
+        else if (BedWars.nms.isBow(item)) category = HotbarCategory.RANGED;
+        else if (item.getType() == Material.WOOL) category = HotbarCategory.BLOCKS;
+        if (category == null) return;
+
+        String[] slots = HotbarPlayerManager.getInstance().get(player.getUniqueId());
+        if (slots == null) return;
+
+        int target = -1;
+        for (int i = 0; i < 9; i++) {
+            if (category.name().toLowerCase().equals(slots[i])) {
+                target = i;
+                break;
+            }
+        }
+        if (target == -1) {
+            for (int i = 0; i < 9; i++) {
+                String[] parsed = HotbarIdentifier.parseItemPath(slots[i]);
+                if (parsed != null && parsed[0].equals(category.name().toLowerCase())) {
+                    target = i;
+                    break;
+                }
+            }
+        }
+        if (target == -1) return;
+
+        PlayerInventory inv = player.getInventory();
+
+        int given = -1;
+        for (int i = 0; i < 9; i++) {
+            ItemStack current = inv.getItem(i);
+            if (current != null && current.getType() == item.getType()
+                    && current.getAmount() == item.getAmount()) {
+                given = i;
+                break;
+            }
+        }
+        if (given == -1 || given == target) return;
+
+        ItemStack targetOld = inv.getItem(target);
+        inv.setItem(given, null);
+        inv.setItem(target, item);
+        player.updateInventory();
+
         if (targetOld != null && targetOld.getType() != Material.AIR) {
             inv.addItem(targetOld);
             player.updateInventory();
@@ -144,7 +198,8 @@ public final class HotbarPlacement {
             }
             if (target == -1) {
                 for (int s = 0; s < 9; s++) {
-                    if (category.name().toLowerCase().equals(slots[s])) {
+                    String[] parsed = HotbarIdentifier.parseItemPath(slots[s]);
+                    if (parsed != null && parsed[0].equals(category.name().toLowerCase())) {
                         target = s;
                         break;
                     }
